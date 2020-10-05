@@ -1,13 +1,8 @@
 # higgs_boson_classification
  CS-433
 
-Tasks :
-\begin{itemize}
- \item Implements the 6 methods
- \item  Submit our prediction
- \item  Submit our code
-\item  Write the report (2 page)
-\end{itemize}
+Tasks : Implements the 6 methods, Submit our prediction, Submit our code, Write the report (2 page)
+
 
 First Week : Implements all the methods and discuss the implementation
 
