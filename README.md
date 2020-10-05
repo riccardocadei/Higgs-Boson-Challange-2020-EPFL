@@ -8,9 +8,13 @@ Submit our code
 Write the report (2 pages)
 
 First Week : Implements all the methods and discuss the implementation
+
 Second Week : Apply the methods to the data set, see if there is any problem (see how to preprocess the data), start evaluating the performance.
+
 Third Week : Continue evaluating the performance, write the final .py file, clean the code
+
 Fourth Week : Write the report, CELEBRATE
+
 
 First Week:
 Least Square GD : Raphael
