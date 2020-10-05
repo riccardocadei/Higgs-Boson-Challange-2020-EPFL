@@ -2,10 +2,12 @@
  CS-433
 
 Tasks :
-Implements the 6 methods
-Submit our prediction
-Submit our code
-Write the report (2 pages)
+\begin{itemize}
+ \item Implements the 6 methods
+ \item  Submit our prediction
+ \item  Submit our code
+\item  Write the report (2 page)
+\end{itemize}
 
 First Week : Implements all the methods and discuss the implementation
 
