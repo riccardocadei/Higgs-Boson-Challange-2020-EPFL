@@ -1,3 +1,5 @@
+import numpy as np
+
 # Gradient based methods for linear systems
 
 def compute_mse(y_tr,tx_tr,weight):

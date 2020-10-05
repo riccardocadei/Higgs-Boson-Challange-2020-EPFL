@@ -66,11 +66,7 @@ def missing_values(X):
 
       return X
     
-def compute_loss(y_tr,tx_tr,weight):
-    return np.linalg.norm(y_tr-tx_tr.dot(weight))/len(y_tr)
-
-def least_squares(y, tx):
-    """calculate the least squares solution."""
-    w = np.linalg.solve (tx.T.dot(tx),tx.T.dot(y))
-    mse = compute_loss(y, tx, w)
-    return mse , w 
+def normalize(X):
+      for i in range(x.shape(1)):
+            X[:,i] = (X[:,i] - np.mean(X[:,i]))/np.std(X[:,i])
+      return X
