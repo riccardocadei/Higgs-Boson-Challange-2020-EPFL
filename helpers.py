@@ -53,20 +53,20 @@ def missing_values(X):
       delete = [] 
       for feature in range(D):
             missing_data[feature] = np.count_nonzero(X[:,feature]==-999)/N
-            if missing_data[feature]>0.3: 
+            if missing_data[feature]>0.8: 
             # delete features with more than 30% missing values
                   delete.append(feature)
             elif missing_data[feature]>0:
             # complete features with less than30% missing values
-                  mean = np.where(X[:,feature]==-999, 0, X[:,feature]).mean()
-                  X[:,feature] = np.where(X[:,feature]==-999, mean, X[:,feature])
+                  median = np.median(np.where(X[:,feature]==-999, 0, X[:,feature]))
+                  X[:,feature] = np.where(X[:,feature]==-999, median, X[:,feature])
       X = np.delete(X, delete, 1)
       # adding an intercepta
-      X = np.c_[np.ones((X.shape[0], 1)), X]
+      # X = np.c_[np.ones((X.shape[0], 1)), X]
 
       return X
     
-def normalize(X):
-      for i in range(x.shape(1)):
+def standardize(X):
+      for i in range(X.shape[1]):
             X[:,i] = (X[:,i] - np.mean(X[:,i]))/np.std(X[:,i])
       return X

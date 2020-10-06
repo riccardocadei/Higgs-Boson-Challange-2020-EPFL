@@ -40,15 +40,20 @@ def gradient_descent(y, tx, initial_w, max_iters, gamma):
 #LOGISTIC REGRESSION
 
 def sigmoid(t):
-    return np.exp(t)/(1+np.exp(t))
+    """apply sigmoid function on t."""
+    return 1.0 / (1 + np.exp(-t))
 
 def calculate_loss(y, tx, w):
-  pred = sigmoid(tx.dot(w))
-  loss = -y.T.dot(np.log(pred))+(1-y).T.dot(np.log(1-pred))
-  return np.squeeze(-loss)
+    """compute the cost by negative log likelihood."""
+    pred = sigmoid(tx.dot(w))
+    loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
+    return np.squeeze(- loss)
 
 def calculate_gradient(y, tx, w):
-    return tx.T.dot(sigmoid(tx.dot(w))-y)
+    """compute the gradient of loss."""
+    pred = np.squeeze(sigmoid(tx.dot(w)))
+    grad = (tx.T).dot(pred - y)
+    return np.squeeze(grad)
 
 def learning_by_gradient_descent(y, tx, w, gamma):
     """
@@ -57,11 +62,15 @@ def learning_by_gradient_descent(y, tx, w, gamma):
     """
     loss = calculate_loss(y, tx, w)
     grad = calculate_gradient(y, tx, w)
-    w = w - gamma*grad
+    grad = np.expand_dims(grad, axis=1)
+    w -= gamma * grad
     return loss, w
 
-def logistic_regression_gradient_descent_demo(y, x, max_iter = 10000,threshold = 1e-8,gamma = 0.01):
+def logistic_regression_gradient_descent(y, x):
     # init parameters
+    max_iter = 10000
+    threshold = 1e-8
+    gamma = 0.01
     losses = []
 
     # build tx
@@ -72,16 +81,11 @@ def logistic_regression_gradient_descent_demo(y, x, max_iter = 10000,threshold =
     for iter in range(max_iter):
         # get loss and update w.
         loss, w = learning_by_gradient_descent(y, tx, w, gamma)
-        # log info
-        if iter % 100 == 0:
-            print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
         # converge criterion
         losses.append(loss)
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
             break
-    # visualization
-    visualization(y, x, mean_x, std_x, w, "classification_by_logistic_regression_gradient_descent")
-    print("loss={l}".format(l=calculate_loss(y, tx, w)))
+    return loss, w
     
 def learning_by_stochastic_gradient_descent(y, tx, w, gamma,minibatch_y,minibatch_tx):
     """
@@ -93,29 +97,7 @@ def learning_by_stochastic_gradient_descent(y, tx, w, gamma,minibatch_y,minibatc
     w = w - gamma * grad
     return loss, w
 
-def logistic_regression_gradient_descent_demo(y, x, batch_size, max_iter = 10000,threshold = 1e-8,gamma = 0.01):
-    # init parameters
-    losses = []
 
-    # build tx
-    tx = np.c_[np.ones((y.shape[0], 1)), x]
-    w = np.zeros((tx.shape[1], 1))
-
-    # start the logistic regression
-    for iter in range(max_iter):
-        # get loss and update w.
-        for minibatch_y, minibatch_tx in batch_iter(y, tx, batch_size):
-          loss, w = learning_by_stochastic_gradient_descent(y, tx, w, gamma)
-          # log info
-          if iter % 100 == 0:
-              print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
-          # converge criterion
-          losses.append(loss)
-          if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
-              break
-    # visualization
-    visualization(y, x, mean_x, std_x, w, "classification_by_logistic_regression_gradient_descent")
-    print("loss={l}".format(l=calculate_loss(y, tx, w)))
     
 # Regularized LOGISTIC REGRESSION
 
@@ -137,10 +119,10 @@ def learning_by_penalized_gradient(y, tx, w, gamma, lambda_):
 
 def logistic_regression_penalized_gradient_descent_demo(y, x):
     # init parameters
-    max_iter = 10000
+    max_iter = 500
     gamma = 0.01
     lambda_ = 0.1
-    threshold = 1e-8
+    threshold = 1e-6
     losses = []
 
     # build tx
