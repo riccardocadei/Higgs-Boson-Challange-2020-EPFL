@@ -2,8 +2,10 @@ import numpy as np
 
 # Gradient based methods for linear systems
 
-def compute_mse(y_tr,tx_tr,weight):
-    return np.linalg.norm(y_tr-tx_tr.dot(weight))/len(y_tr)
+def compute_mse(y, tx, w):
+    e = y - tx.dot(w)
+    mse = e.dot(e) /(2*len(e))
+    return mse
 
 def least_squares(y, tx):
     """calculate the least squares solution."""
@@ -17,43 +19,46 @@ def compute_gradient(y, tx, w):
     grad = -tx.T.dot(e) / len(e)
     return grad, e
 
-def gradient_descent(y, tx, initial_w, max_iters, gamma):
+def gradient_descent(y, tx, max_iters, gamma):
     """Gradient descent algorithm."""
     # Define parameters to store w and loss
-    ws = [initial_w]
+    ws = [np.random.random(tx.shape[1])] # Initial guess w0 generated randomly
+    
+    
     losses = []
-    w = initial_w
+    w = ws[0]
     for n_iter in range(max_iters):
         # compute loss, gradient
         grad, err = compute_gradient(y, tx, w)
-        loss = calculate_mse(err)
+        loss = compute_mse(y,tx,w)
         # gradient w by descent update
         w = w - gamma * grad
         # store w and loss
         ws.append(w)
         losses.append(loss)
-        print("Gradient Descent({bi}/{ti}): loss={l}, w0={w0}, w1={w1}".format(
-              bi=n_iter, ti=max_iters - 1, l=loss, w0=w[0], w1=w[1]))
-    return losses, ws
+        if (n_iter % 100) == 0:
+            print("Gradient Descent({bi}/{ti}): loss={l}".format(
+              bi=n_iter, ti=max_iters - 1, l=loss))
+    return losses, w
 
 
 #LOGISTIC REGRESSION
 
 def sigmoid(t):
     """apply sigmoid function on t."""
-    return 1.0 / (1 + np.exp(-t))
+    return np.exp(t)/(1+np.exp(t))
 
 def calculate_loss(y, tx, w):
     """compute the cost by negative log likelihood."""
     pred = sigmoid(tx.dot(w))
-    loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
+    loss = -y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
     return np.squeeze(- loss)
 
 def calculate_gradient(y, tx, w):
     """compute the gradient of loss."""
     pred = np.squeeze(sigmoid(tx.dot(w)))
     grad = (tx.T).dot(pred - y)
-    return np.squeeze(grad)
+    return grad
 
 def learning_by_gradient_descent(y, tx, w, gamma):
     """
@@ -68,9 +73,9 @@ def learning_by_gradient_descent(y, tx, w, gamma):
 
 def logistic_regression_gradient_descent(y, x):
     # init parameters
-    max_iter = 10000
+    max_iter = 100
     threshold = 1e-8
-    gamma = 0.01
+    gamma = 0.001
     losses = []
 
     # build tx
@@ -85,6 +90,7 @@ def logistic_regression_gradient_descent(y, x):
         losses.append(loss)
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
             break
+        print(loss)
     return loss, w
     
 def learning_by_stochastic_gradient_descent(y, tx, w, gamma,minibatch_y,minibatch_tx):
@@ -114,6 +120,7 @@ def learning_by_penalized_gradient(y, tx, w, gamma, lambda_):
     Return the loss and updated w.
     """
     loss, gradient = penalized_logistic_regression(y, tx, w, lambda_)
+    print(w.shape, gradient.shape)
     w -= gamma * gradient
     return loss, w
 
@@ -141,6 +148,5 @@ def logistic_regression_penalized_gradient_descent_demo(y, x):
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
             break
     # visualization
-    visualization(y, x, mean_x, std_x, w, "classification_by_logistic_regression_penalized_gradient_descent")
-    print("loss={l}".format(l=calculate_loss(y, tx, w)))
+    return loss, w
     
