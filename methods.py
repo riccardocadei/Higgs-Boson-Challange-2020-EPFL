@@ -1,4 +1,5 @@
 import numpy as np
+from helpers import *
 
 # Gradient based methods for linear systems
 
@@ -40,6 +41,21 @@ def gradient_descent(y, tx, max_iters, gamma):
             print("Gradient Descent({bi}/{ti}): loss={l}".format(
               bi=n_iter, ti=max_iters - 1, l=loss))
     return losses, w
+
+# RIDGE REGRESSION
+
+def ridge_regression(y, tx, lambda_):
+    """ Ridge regression using normal equations
+    """
+    x_t = tx.T
+    lambd = lambda_ * 2 * len(y)
+
+    w = np.dot(np.dot(np.linalg.inv(np.dot(x_t, tx) + lambd * np.eye(tx.shape[1])), x_t), y)
+    loss = compute_mse(y, tx, w)
+
+    return loss, w
+
+
 
 
 #LOGISTIC REGRESSION
@@ -102,6 +118,10 @@ def learning_by_stochastic_gradient_descent(y, tx, w, gamma,minibatch_y,minibatc
     grad = compute_stoch_gradient(minibatch_y, minibatch_tx, w)
     w = w - gamma * grad
     return loss, w
+
+
+
+
 
 
     
