@@ -4,8 +4,8 @@ from helpers import *
 # Gradient based methods for linear systems
 
 def compute_mse(y, tx, w):
-    e = y - tx.dot(w)
-    mse = e.dot(e) /(2*len(e))
+    e = y - tx@w
+    mse = e.T.dot(e) /(2*len(e))
     return mse
 
 def least_squares(y, tx):
@@ -49,11 +49,9 @@ def ridge_regression(y, tx, lambda_):
     """
     x_t = tx.T
     lambd = lambda_ * 2 * len(y)
-
     w = np.dot(np.dot(np.linalg.inv(np.dot(x_t, tx) + lambd * np.eye(tx.shape[1])), x_t), y)
     loss = compute_mse(y, tx, w)
-
-    return loss, w
+    return loss,w
 
 
 
@@ -83,7 +81,7 @@ def learning_by_gradient_descent(y, tx, w, gamma):
     """
     loss = calculate_loss(y, tx, w)
     grad = calculate_gradient(y, tx, w)
-    grad = np.expand_dims(grad, axis=1)
+    print(gamma)
     w -= gamma * grad
     return loss, w
 
@@ -93,10 +91,10 @@ def logistic_regression_gradient_descent(y, x):
     threshold = 1e-8
     gamma = 0.001
     losses = []
-
+    y[y==-1]=0
     # build tx
     tx = np.c_[np.ones((y.shape[0], 1)), x]
-    w = np.zeros((tx.shape[1], 1))
+    w = np.zeros(tx.shape[1])
 
     # start the logistic regression
     for iter in range(max_iter):
