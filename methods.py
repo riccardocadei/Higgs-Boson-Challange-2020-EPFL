@@ -116,8 +116,7 @@ def calculate_loss(y, tx, w):
     s = 0
     for i in range(len(y)):
         s += np.log(1+np.exp(tx[i,:].T@w))-y[i]*tx[i,:].T@w
-    #return np.sum(np.log(1+np.exp(tx@w))-y@tx@w)
-    return s
+    return np.sum(np.log(1+np.exp(tx@w))-y*(tx@w))/len(y)
 
 def calculate_gradient(y, tx, w):
     """compute the gradient of loss."""
