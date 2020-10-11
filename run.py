@@ -34,10 +34,8 @@ tx, tx_test = process_data(tx, tx_test, True)
 loss, weights = gradient_descent(y,tx,1000,0.01)
 
 #2. Least Squares with Stochastic Gradient Descent
-    #*************************************************
-    # least_squares_SGD(y, tx, initial w, max_iters, gamma)
-    # TODO
-    # ***************************************************
+loss, weights = stochastic_gradient_descent(y, tX)
+
 #3. Least Squares with Normal Equations
 loss, weights = least_squares(y, tx)
 

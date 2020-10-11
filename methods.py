@@ -1,5 +1,5 @@
 import numpy as np
-from helpers import *
+from orginal_helpers import *
 
 # Gradient based methods for linear systems
 
@@ -68,7 +68,7 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
 
 def stochastic_gradient_descent(
-        y, tx, initial_w, batch_size, max_iters, gamma):
+        y, tx, initial_w=np.random.random(tX.shape[1]), batch_size=1, max_iters=1000, gamma=0.005):
     """Stochastic gradient descent."""
     # Define parameters to store w and loss
     ws = [initial_w]
@@ -144,7 +144,7 @@ def learning_by_gradient_descent(y, tx, w, gamma):
     w = w-gamma*grad
     return loss, w
 
-def logistic_regression_gradient_descent(y, x):
+def logistic_regression_gradient_descent(y, x, initial_w=np.random.random(x.shape[1]+1), batch_size=1, max_iters=200, gamma=0.000005):
     # init parameters
     max_iter = 200
     threshold = 1e-8
@@ -153,17 +153,18 @@ def logistic_regression_gradient_descent(y, x):
     y[y==-1]=0
     # build tx
     tx = np.c_[np.ones((y.shape[0], 1)), x]
-    w = np.zeros(tx.shape[1])
+    w = initial_w
 
     # start the logistic regression
     for iter in range(max_iter):
         # get loss and update w.
-        loss, w = learning_by_gradient_descent(y, tx, w, gamma)
-        # converge criterion
-        losses.append(loss)
-        if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
-            break
-        print(loss,iter)
+        for y_batch, tx_batch in batch_iter(y, tx, batch_size=batch_size, num_batches=1):
+            _, w = learning_by_gradient_descent(y_batch, tx_batch, w, gamma)
+            # converge criterion
+            losses.append(calculate_loss(y,tx,w))
+            if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
+                break
+            print(loss,iter)
     return loss, w
     
 def learning_by_stochastic_gradient_descent(y, tx, w, gamma,minibatch_y,minibatch_tx):
