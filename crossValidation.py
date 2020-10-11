@@ -31,7 +31,7 @@ def build_k_indices(y, k_fold, seed):
                  for k in range(k_fold)]
     return np.array(k_indices)
 
-def cross_validation(y, x, k_indices, k, lambda_):
+def cross_validation_ridge_helper(y, x, k_indices, k, lambda_):
     """return the loss of ridge regression."""
     y_test = y[k_indices[k]]
     x_test = x[k_indices[k]]
@@ -56,7 +56,7 @@ def cross_validation_ridge_regression(y,x):
         tr = 0
         te = 0
         for k in range(k_fold):
-            tr_temp, te_temp, w = cross_validation(y, x, k_indices, k, l)
+            tr_temp, te_temp, w = cross_validation_ridge_helper(y, x, k_indices, k, l)
             tr = tr + tr_temp
             te = te + te_temp
         rmse_tr.append(tr)
@@ -68,6 +68,37 @@ def cross_validation_ridge_regression(y,x):
     
     return tr,best_weights, best_lambda
 
+def cross_validation_general_helper(y, x, k_indices, k, fun):
+    """return the loss of ridge regression."""
+    y_test = y[k_indices[k]]
+    x_test = x[k_indices[k]]
+    y_train = np.delete(y,k_indices[k])
+    x_train =  np.delete(x,k_indices[k],axis=0)
+    loss_tr ,w = fun(y_train, x_train)
+    if fun == logistic_regression:
+        loss_te = compute_mse(y_test, x_test, w)
+    else:
+        loss_te = calculate_loss(y_test,x_test,w)
+    return loss_tr, loss_te, w
+
+def cross_validation_general(y,x,fun, k_fold = 5):
+    seed = 10
+    # split data in k fold
+    k_indices = build_k_indices(y, k_fold, seed)
+    # define lists to store the loss of training data and test data
+    rmse_tr = []
+    rmse_te = []
+  
+    tr = 0
+    te = 0
+    for k in range(k_fold):
+        tr_temp, te_temp, w = cross_validation_general_helper(y, x, k_indices, k, fun)
+        print(tr_temp)
+        rmse_tr.append(tr_temp)
+        rmse_te.append(te_temp)
+        
+    print('Mean error test on {k} folds: {mean}'.format(k=k_fold,mean = np.mean(rmse_te)))
+    return np.mean(rmse_te)
 
 def cross_validation_visualization(lambds, mse_tr, mse_te):
     """visualization the curves of mse_tr and mse_te."""
