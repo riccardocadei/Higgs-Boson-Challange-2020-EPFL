@@ -41,10 +41,10 @@ def cross_validation(y, x, k_indices, k, lambda_):
     loss_te = compute_mse(y_test, x_test, w)
     return loss_tr, loss_te, w
 
-def cross_validation_demo(y,x):
+def cross_validation_ridge_regression(y,x):
     seed = 10
-    k_fold = 10
-    lambdas = np.logspace(-4, -1, 100)
+    k_fold = 5
+    lambdas = np.logspace(-4, -4, 100)
     # split data in k fold
     k_indices = build_k_indices(y, k_fold, seed)
     # define lists to store the loss of training data and test data

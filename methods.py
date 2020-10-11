@@ -14,23 +14,21 @@ def least_squares(y, tx):
     mse = compute_mse(y, tx, w)
     return mse , w 
 
-def compute_gradient(y, tx, w):
+def least_squares_gradient(y, tx, w):
     """Compute the gradient."""  
     e = y - tx.dot(w)
     grad = -tx.T.dot(e) / len(e)
     return grad, e
 
-def gradient_descent(y, tx, max_iters, gamma):
+def least_squares_GD(y, tx, initial_w, max_iters=1000, gamma=0.005):
     """Gradient descent algorithm."""
     # Define parameters to store w and loss
-    ws = [np.random.random(tx.shape[1])] # Initial guess w0 generated randomly
-    
-    
+    ws = [initial_w] # Initial guess w0 generated randomly
     losses = []
     w = ws[0]
     for n_iter in range(max_iters):
         # compute loss, gradient
-        grad, err = compute_gradient(y, tx, w)
+        grad, err = least_squares_gradient(y, tx, w)
         loss = compute_mse(y,tx,w)
         # gradient w by descent update
         w = w - gamma * grad
@@ -67,8 +65,7 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
         if start_index != end_index:
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
 
-def stochastic_gradient_descent(
-        y, tx, initial_w=np.random.random(tX.shape[1]), batch_size=1, max_iters=1000, gamma=0.005):
+def least_squares_SGD(y, tx, initial_w, batch_size=1, max_iters=1000, gamma=0.005):
     """Stochastic gradient descent."""
     # Define parameters to store w and loss
     ws = [initial_w]
@@ -77,7 +74,7 @@ def stochastic_gradient_descent(
     for n_iter in range(max_iters):
         for y_batch, tx_batch in batch_iter(y, tx, batch_size=batch_size, num_batches=1):
             # compute a stochastic gradient and loss
-            grad, _ = compute_gradient(y_batch, tx_batch, np.array(w))
+            grad, _ = least_squares_gradient(y_batch, tx_batch, np.array(w))
             # update w through the stochastic gradient update
             w = w - gamma * grad
             # calculate loss
@@ -113,9 +110,6 @@ def sigmoid(t):
 
 def calculate_loss(y, tx, w):
     """compute the cost by negative log likelihood."""
-    s = 0
-    for i in range(len(y)):
-        s += np.log(1+np.exp(tx[i,:].T@w))-y[i]*tx[i,:].T@w
     return np.sum(np.log(1+np.exp(tx@w))-y*(tx@w))/len(y)
 
 def calculate_gradient(y, tx, w):
@@ -127,32 +121,17 @@ def learning_by_gradient_descent(y, tx, w, gamma):
     Do one step of gradient descen using logistic regression.
     Return the loss and the updated w.
     """
-    # ***************************************************
-    # INSERT YOUR CODE HERE
-    # compute the cost: TODO
-    # ***************************************************
     loss = calculate_loss(y,tx,w)
-    # ***************************************************
-    # INSERT YOUR CODE HERE
-    # compute the gradient: TODO
-    # ***************************************************
     grad = calculate_gradient(y,tx,w)
-    # ***************************************************
-    # INSERT YOUR CODE HERE
-    # update w: TODO
-    # ***************************************************
     w = w-gamma*grad
     return loss, w
 
-def logistic_regression_gradient_descent(y, x, initial_w=np.random.random(x.shape[1]+1), batch_size=1, max_iters=200, gamma=0.000005):
+def logistic_regression(y, tx, initial_w, batch_size=1, max_iter=10000, gamma=0.009):
     # init parameters
-    max_iter = 200
     threshold = 1e-8
-    gamma = 0.000005
     losses = []
     y[y==-1]=0
     # build tx
-    tx = np.c_[np.ones((y.shape[0], 1)), x]
     w = initial_w
 
     # start the logistic regression
@@ -164,8 +143,9 @@ def logistic_regression_gradient_descent(y, x, initial_w=np.random.random(x.shap
             losses.append(calculate_loss(y,tx,w))
             if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
                 break
-            print(loss,iter)
-    return loss, w
+            if iter % 100 == 0:
+                print(losses[-1],iter)
+    return losses[-1], w
     
 def learning_by_stochastic_gradient_descent(y, tx, w, gamma,minibatch_y,minibatch_tx):
     """

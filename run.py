@@ -31,10 +31,10 @@ tx_test, _, _ = standardize(tx, mean_tx, std_tx)
 tx, tx_test = process_data(tx, tx_test, True)
 
 #1. Least Squares with Gradient Descent
-loss, weights = gradient_descent(y,tx,1000,0.01)
+loss, weights = least_squares_GD(y, tx, initial_w=np.zeros(tx.shape[1]), max_iters=1000, gamma=0.005)
 
 #2. Least Squares with Stochastic Gradient Descent
-loss, weights = stochastic_gradient_descent(y, tX)
+loss, weights = least_squares_SGD(y, tx, initial_w=np.zeros(tx.shape[1]), batch_size=1, max_iters=1000, gamma=0.005)
 
 #3. Least Squares with Normal Equations
 loss, weights = least_squares(y, tx)
@@ -43,11 +43,7 @@ loss, weights = least_squares(y, tx)
 loss, weights = ridge_regression(y, tx, 0.2)
 
 # 5. Logistic Regression with Stochastic Gradient Descent
-loss, weights = logistic_regression_gradient_descent(y, tx)
-
-# it shoud be in this form
-# loss, weights = logistic regression_SGD(y, tX, initial w, max_iters, gamma)
-# and we should use SGd rather than GD because it's more efficient
+loss, weights = logistic_regression(y, tX,initial_w= np.random.random(tX.shape[1]))
 
 # 6. Regularized Logistic Regression with Stochastic Gradient Descent
 # ***************************************************
@@ -56,7 +52,7 @@ loss, weights = logistic_regression_gradient_descent(y, tx)
 # ***************************************************
 
 #Cross Validation
-loss, weights, best_lambda = cross_validation_demo(y,tx)
+loss, weights, best_lambda = cross_validation_ridge_regression(y,tx)
 
 #Submission
 OUTPUT_PATH = 'Data/firstsubmission.csv' 
