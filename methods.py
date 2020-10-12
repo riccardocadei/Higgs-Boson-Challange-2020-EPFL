@@ -81,13 +81,12 @@ def least_squares_SGD(y, tx, initial_w=None, batch_size=1, max_iters=1000, gamma
             # calculate loss
             loss = compute_mse(y, tx, w)
             # store w and loss
-            ws.append(w)
             losses.append(loss)
 
         if n_iter % 100 == 0:
             print("SGD({bi}/{ti}): loss={l}".format(
               bi=n_iter, ti=max_iters - 1, l=loss))
-    return loss, ws
+    return loss, w
 
 # RIDGE REGRESSION
 

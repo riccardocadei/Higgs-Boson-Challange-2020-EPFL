@@ -42,9 +42,9 @@ def cross_validation_ridge_helper(y, x, k_indices, k, lambda_):
     return loss_tr, loss_te, w
 
 def cross_validation_ridge_regression(y,x):
-    seed = 10
-    k_fold = 5
-    lambdas = np.logspace(-4, -4, 100)
+    seed = 5
+    k_fold = 10
+    lambdas = np.logspace(-10, 10, 100)
     # split data in k fold
     k_indices = build_k_indices(y, k_fold, seed)
     # define lists to store the loss of training data and test data
