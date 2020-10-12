@@ -23,8 +23,7 @@ def least_squares_gradient(y, tx, w):
 def least_squares_GD(y, tx, initial_w=None, max_iters=1000, gamma=0.005):
     """Gradient descent algorithm."""
     # Define parameters to store w and loss
-    if initial_w == None: initial_w = np.random.random(tx.shape[1])
-    ws = [initial_w] # Initial guess w0 generated randomly
+    if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])    ws = [initial_w] # Initial guess w0 generated randomly
     losses = []
     w = ws[0]
     for n_iter in range(max_iters):
@@ -69,8 +68,7 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
 def least_squares_SGD(y, tx, initial_w=None, batch_size=1, max_iters=1000, gamma=0.005):
     """Stochastic gradient descent."""
     # Define parameters to store w and loss
-    if initial_w == None: initial_w = np.random.random(tx.shape[1])
-    ws = [initial_w]
+    if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])    ws = [initial_w]
     losses = []
     w = initial_w
     for n_iter in range(max_iters):
@@ -101,9 +99,6 @@ def ridge_regression(y, tx, lambda_):
     loss = compute_mse(y, tx, w)
     return loss,w
 
-
-
-
 #LOGISTIC REGRESSION
 
 def sigmoid(t):
@@ -130,7 +125,7 @@ def learning_by_gradient_descent(y, tx, w, gamma):
 
 def logistic_regression(y, tx, initial_w=None, batch_size=1, max_iter=100, gamma=0.009):
     # init parameters
-    if initial_w == None: initial_w = np.random.random(tx.shape[1])
+    if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])
     threshold = 1e-8
     losses = []
     y[y==-1]=0
@@ -146,7 +141,7 @@ def logistic_regression(y, tx, initial_w=None, batch_size=1, max_iter=100, gamma
             losses.append(calculate_loss(y,tx,w))
             if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
                 break
-            if iter % int(max_iter/10) == 0:
+            if iter % int(max_iter/100) == 0:
                 print(losses[-1],iter,'/{tot}'.format(tot=max_iter))
 
     return losses[-1], w
