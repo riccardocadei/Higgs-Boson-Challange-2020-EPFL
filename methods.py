@@ -23,7 +23,8 @@ def least_squares_gradient(y, tx, w):
 def least_squares_GD(y, tx, initial_w=None, max_iters=1000, gamma=0.005):
     """Gradient descent algorithm."""
     # Define parameters to store w and loss
-    if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])    ws = [initial_w] # Initial guess w0 generated randomly
+    if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])    
+    ws = [initial_w] # Initial guess w0 generated randomly
     losses = []
     w = ws[0]
     for n_iter in range(max_iters):
@@ -68,7 +69,7 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
 def least_squares_SGD(y, tx, initial_w=None, batch_size=1, max_iters=1000, gamma=0.005):
     """Stochastic gradient descent."""
     # Define parameters to store w and loss
-    if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])    ws = [initial_w]
+    if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])    
     losses = []
     w = initial_w
     for n_iter in range(max_iters):
@@ -183,7 +184,7 @@ def learning_by_penalized_gradient(y, tx, w, gamma, lambda_):
 
 def logistic_regression_penalized_gradient_descent_demo(y, x, initial_w=None):
     # init parameters
-    if initial_w == None: initial_w = np.random.random(tx.shape[1])
+    if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])    
     max_iter = 500
     gamma = 0.01
     lambda_ = 0.1
