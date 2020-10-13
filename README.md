@@ -3,15 +3,40 @@ CS-433
 
 TO DO:
 
-1. Preprocess the data (Riccardo)
+1. Preprocessing:
 
-2. Cross Validation (Raphael)
+    1.1 Feature Selections: 
 
-3. Understand why our Logistic Regression  is so RAM consuming (Raphael)
+        STATISTICAL FEATURES ANALYSIS
+        New features: Apply a polynomial basis to all the X features
+        PCA, correlation analysis (scatterplot, VIF, ...), manage the 0s in the last feature
 
-4. Add all function that we need for the 6 methods clearly in the methods.py file (Shasha).OSSERVATION: I don't know why but some functions, like logistic regression, work with dataset used during the lecture of the last year, but they don't work with our huge dataset (what does our Computer Scientist think about this?)
+    1.2. Outlyer: 
+
+        Outlayer analysis, leverages, cook's metric ...
+
+    1.3. Missing Values:
+    
+        Define a new Metric and sobstitute the missing values with the rispective value of the most similar training exampple
+      
+2. Cross Validation for each model like cross_validation_least_squares_GD and cross_validation_ridge_regression (4 remaining)
+
+3. Cross Validation to find Optimal Lambda in model Ridge and Reg_Logistic_Reg
 
 
+PLUS:
+
+4. Prepare and share the template for the report (in overleaf we already have a template that they give us)
+
+5. Load the test.csv zipped on gitHub and modify the function load_csv in order to unzip directly this file
+
+
+
+
+status: Accuracy = 0.782
+
+GOAL1: Accuracy >0.80
+GOAL2: Accuracy >0.83
 
 
 

@@ -35,8 +35,8 @@ def least_squares_GD(y, tx, initial_w=None, max_iters=200, gamma=0.005):
         # store w and loss
         ws.append(w)
         losses.append(loss)
-        if (n_iter % 100) == 0:
-            print("Gradient Descent({bi}/{ti}): loss={l}".format(bi=n_iter, ti=max_iters,l=loss))
+        #if (n_iter % 100) == 0:
+            #print("Gradient Descent({bi}/{ti}): loss={l}".format(bi=n_iter, ti=max_iters,l=loss))
 
     return loss, w
 
