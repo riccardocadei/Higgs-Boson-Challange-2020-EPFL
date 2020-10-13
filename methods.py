@@ -1,5 +1,4 @@
 import numpy as np
-from orginal_helpers import *
 
 # Gradient based methods for linear systems
 
@@ -20,7 +19,7 @@ def least_squares_gradient(y, tx, w):
     grad = -tx.T.dot(e) / len(e)
     return grad, e
 
-def least_squares_GD(y, tx, initial_w=None, max_iters=1000, gamma=0.005):
+def least_squares_GD(y, tx, initial_w=None, max_iters=200, gamma=0.005):
     """Gradient descent algorithm."""
     # Define parameters to store w and loss
     if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])    
@@ -115,7 +114,7 @@ def calculate_gradient(y, tx, w):
 
 def learning_by_gradient_descent(y, tx, w, gamma):
     """
-    Do one step of gradient descen using logistic regression.
+    Do one step of gradient descent using logistic regression.
     Return the loss and the updated w.
     """
     loss = calculate_loss(y,tx,w)
@@ -123,7 +122,7 @@ def learning_by_gradient_descent(y, tx, w, gamma):
     w = w-gamma*grad
     return loss, w
 
-def logistic_regression(y, tx, initial_w=None, batch_size=1, max_iter=100, gamma=0.009):
+def logistic_regression(y, tx, initial_w=None, batch_size=1, max_iters=100, gamma=0.009):
     # init parameters
     if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])
     threshold = 1e-8
@@ -133,7 +132,7 @@ def logistic_regression(y, tx, initial_w=None, batch_size=1, max_iter=100, gamma
     w = initial_w
 
     # start the logistic regression
-    for iter in range(max_iter):
+    for iter in range(max_iters):
         # get loss and update w.
         for y_batch, tx_batch in batch_iter(y, tx, batch_size=batch_size, num_batches=1):
             _, w = learning_by_gradient_descent(y_batch, tx_batch, w, gamma)
@@ -141,12 +140,12 @@ def logistic_regression(y, tx, initial_w=None, batch_size=1, max_iter=100, gamma
             losses.append(calculate_loss(y,tx,w))
             if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
                 break
-            if iter % int(max_iter/100) == 0:
-                print(losses[-1],iter,'/{tot}'.format(tot=max_iter))
+            if iter % int(max_iters/100) == 0:
+                print(losses[-1],iter,'/{tot}'.format(tot=max_iters))
 
     return losses[-1], w
     
-def learning_by_stochastic_gradient_descent(y, tx, w, gamma,minibatch_y,minibatch_tx):
+def learning_by_stochastic_gradient_descent(y, tx, w, gamma, minibatch_y, minibatch_tx):
     """
     Do one step of stochastic gradient descenr using logistic regression.
     Return the loss and the updated w.
@@ -160,51 +159,39 @@ def learning_by_stochastic_gradient_descent(y, tx, w, gamma,minibatch_y,minibatc
 
 
 
-
     
 # Regularized LOGISTIC REGRESSION
 
-def penalized_logistic_regression(y, tx, w, lambda_):
-    """return the loss and gradient."""
-    num_samples = y.shape[0]
+def learning_by_penalized_gradient_descent(y, tx, w, gamma, lambda_):
+    """
+    Do one step of gradient descent using logistic regression.
+    Return the loss and the updated w.
+    """
     loss = calculate_loss(y, tx, w) + lambda_ * np.squeeze(w.T.dot(w))
-    gradient = calculate_gradient(y, tx, w) + 2 * lambda_ * w
-    return loss, gradient
-
-def learning_by_penalized_gradient(y, tx, w, gamma, lambda_):
-    """
-    Do one step of gradient descent, using the penalized logistic regression.
-    Return the loss and updated w.
-    """
-    loss, gradient = penalized_logistic_regression(y, tx, w, lambda_)
-    print(w.shape, gradient.shape)
-    w -= gamma * gradient
+    grad = calculate_gradient(y, tx, w) + 2 * lambda_ * w
+    w = w-gamma*grad
     return loss, w
 
-def logistic_regression_penalized_gradient_descent_demo(y, x, initial_w=None):
+def reg_logistic_regression(y, tx, lambda_, initial_w=None, batch_size=1, max_iters=100, gamma=0.009):
     # init parameters
-    if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])    
-    max_iter = 500
-    gamma = 0.01
-    lambda_ = 0.1
-    threshold = 1e-6
+    if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])
+    threshold = 1e-8
     losses = []
-
+    y[y==-1]=0
     # build tx
-    tx = np.c_[np.ones((y.shape[0], 1)), x]
-    w = np.zeros((tx.shape[1], 1))
+    w = initial_w
 
     # start the logistic regression
-    for iter in range(max_iter):
+    for iter in range(max_iters):
         # get loss and update w.
-        loss, w = learning_by_penalized_gradient(y, tx, w, gamma, lambda_)
-        # log info
-        if iter % 100 == 0:
-            print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
-        # converge criterion
-        losses.append(loss)
-        if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
-            break
-    # visualization
-    return loss, w
-    
+        for y_batch, tx_batch in batch_iter(y, tx, batch_size=batch_size, num_batches=1):
+            _, w = learning_by_penalized_gradient_descent(y_batch, tx_batch, w, gamma, lambda_)
+            # converge criterion
+            loss = calculate_loss(y, tx, w) + lambda_ * np.squeeze(w.T.dot(w))
+            losses.append(loss)
+            if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
+                break
+            if iter % int(max_iters/100) == 0:
+                print(losses[-1],iter,'/{tot}'.format(tot=max_iters))
+
+    return losses[-1], w

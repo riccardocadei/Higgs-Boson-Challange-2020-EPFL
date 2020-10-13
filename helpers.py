@@ -2,7 +2,6 @@
 """some helper functions for project 1."""
 import csv
 import numpy as np
-import matplotlib.pyplot as plt
 
 def load_csv_data(data_path, sub_sample=False):
     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
@@ -31,6 +30,15 @@ def predict_labels(weights, data):
     y_pred[np.where(y_pred > 0)] = 1
     
     return y_pred
+
+def compute_accuracy(y_pred, y):
+    """Computes accuracy"""
+    sum = 0
+    for idx, y_val in enumerate(y):
+        if y_val == y_pred[idx]:
+            sum += 1
+
+    return sum / len(y)
 
 
 def create_csv_submission(ids, y_pred, name):

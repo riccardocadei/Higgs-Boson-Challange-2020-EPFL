@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from methods import *
+from helpers import *
+from process_data import *
 
 # Cross Validation
 
@@ -31,82 +33,90 @@ def build_k_indices(y, k_fold, seed):
                  for k in range(k_fold)]
     return np.array(k_indices)
 
-def cross_validation_ridge_helper(y, x, k_indices, k, lambda_):
-    """return the loss of ridge regression."""
-    y_test = y[k_indices[k]]
-    x_test = x[k_indices[k]]
-    y_train = np.delete(y,k_indices[k])
-    x_train =  np.delete(x,k_indices[k],axis=0)
-    loss_tr ,w = ridge_regression(y_train, x_train, lambda_)
-    loss_te = compute_mse(y_test, x_test, w)
-    return loss_tr, loss_te, w
 
-def cross_validation_ridge_regression(y,x):
-    seed = 5
-    k_fold = 10
-    lambdas = np.logspace(-10, 10, 100)
-    # split data in k fold
-    k_indices = build_k_indices(y, k_fold, seed)
-    # define lists to store the loss of training data and test data
-    rmse_tr = []
-    rmse_te = []
-  
-    for indexl, l in enumerate(lambdas):
-        print(indexl)
-        tr = 0
-        te = 0
-        for k in range(k_fold):
-            tr_temp, te_temp, w = cross_validation_ridge_helper(y, x, k_indices, k, l)
-            tr = tr + tr_temp
-            te = te + te_temp
-        rmse_tr.append(tr)
-        rmse_te.append(te)
-        if te == np.min(rmse_te): 
-            best_lambda = l 
-            best_weights = w
-    cross_validation_visualization(lambdas, rmse_tr, rmse_te)
+def cross_validation(y, x, k_indices, k, regression_method, **args):
+    """
+    Completes k-fold cross-validation using the regression method
+    passed as argument.
+    """
+    # get k'th subgroup in test, others in train
+    msk_test = k_indices[k]
+    msk_train = np.delete(k_indices, (k), axis=0).ravel()
+
+    x_train = x[msk_train, :]
+    x_test = x[msk_test, :]
+    y_train = y[msk_train]
+    y_test = y[msk_test]
+
+    # data pre-processing
+    #x_train, x_test = process_data(x_train, x_test, True)
+
+    # compute weights using given method
+    loss, weights = regression_method(y=y_train, tx=x_train, **args)
     
-    return tr,best_weights, best_lambda
+    # predict output for train and test data
+    y_train_pred = predict_labels(weights, x_train)
+    y_test_pred = predict_labels(weights, x_test)
+    
+    
+    # compute accuracy for train and test data
+    acc_train = compute_accuracy(y_train_pred, y_train)
+    acc_test = compute_accuracy(y_test_pred, y_test)
 
-def cross_validation_general_helper(y, x, k_indices, k, fun):
-    """return the loss of ridge regression."""
-    y_test = y[k_indices[k]]
-    x_test = x[k_indices[k]]
-    y_train = np.delete(y,k_indices[k])
-    x_train =  np.delete(x,k_indices[k],axis=0)
-    loss_tr ,w = fun(y_train, x_train)
-    if fun == logistic_regression:
-        loss_te = compute_mse(y_test, x_test, w)
-    else:
-        loss_te = calculate_loss(y_test,x_test,w)
-    return loss_tr, loss_te, w
+    return acc_train, acc_test
 
-def cross_validation_general(y,x,fun, k_fold = 5):
-    seed = 10
-    # split data in k fold
-    k_indices = build_k_indices(y, k_fold, seed)
-    # define lists to store the loss of training data and test data
-    rmse_tr = []
-    rmse_te = []
-  
-    tr = 0
-    te = 0
-    for k in range(k_fold):
-        tr_temp, te_temp, w = cross_validation_general_helper(y, x, k_indices, k, fun)
-        print(tr_temp)
-        rmse_tr.append(tr_temp)
-        rmse_te.append(te_temp)
+
+def cross_validation_ridge_regression(y, x, k_indices, k, lambdas):
+    """
+    Completes k-fold cross-validation using the ridge regression method.
+    Here, we build polynomial features and create four subsets using
+    the jet feature.
+    """
+    # get k'th subgroup in test, others in train
+    msk_test = k_indices[k]
+    msk_train = np.delete(k_indices, (k), axis=0).ravel()
+
+    x_train_all_jets = x[msk_train, :]
+    x_test_all_jets = x[msk_test, :]
+    y_train_all_jets = y[msk_train]
+    y_test_all_jets = y[msk_test]
+
+    # split in 4 subsets the training set
+    msk_jets_train = get_jet_masks(x_train_all_jets)
+    msk_jets_test = get_jet_masks(x_test_all_jets)
+
+    # initialize output vectors
+    y_train_pred = np.zeros(len(y_train_all_jets))
+    y_test_pred = np.zeros(len(y_test_all_jets))
+
+    for idx in range(len(msk_jets_train)):
+        x_train = x_train_all_jets[msk_jets_train[idx]]
+        x_test = x_test_all_jets[msk_jets_test[idx]]
+        y_train = y_train_all_jets[msk_jets_train[idx]]
+
+        # data pre-processing
+        x_train, x_test = process_data(x_train, x_test, True)
+
+        # compute weights using given method
+        loss, weights = ridge_regression(y=y_train, tx=x_train, lambda_=lambdas[idx])
         
-    print('Mean error test on {k} folds: {mean}'.format(k=k_fold,mean = np.mean(rmse_te)))
-    return np.mean(rmse_te)
+        y_train_pred[msk_jets_train[idx]] = predict_labels(weights, x_train)
+        y_test_pred[msk_jets_test[idx]] = predict_labels(weights, x_test)
 
-def cross_validation_visualization(lambds, mse_tr, mse_te):
-    """visualization the curves of mse_tr and mse_te."""
-    plt.semilogx(lambds, mse_tr, marker=".", color='b', label='train error')
-    plt.semilogx(lambds, mse_te, marker=".", color='r', label='test error')
-    plt.xlabel("lambda")
-    plt.ylabel("rmse")
-    plt.title("cross validation")
-    plt.legend(loc=2)
-    plt.grid(True)
-    plt.savefig("cross_validation")
+    # compute accuracy for train and test data
+    acc_train = compute_accuracy(y_train_pred, y_train_all_jets)
+    acc_test = compute_accuracy(y_test_pred, y_test_all_jets)
+
+    return acc_train, acc_test
+
+
+
+
+
+
+
+
+
+
+
+

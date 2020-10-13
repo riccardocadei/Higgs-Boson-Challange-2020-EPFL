@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 def missing_values(X, X_test): 
         N, D = X.shape
@@ -37,55 +38,88 @@ def add_constant_column(x):
     return np.hstack((np.ones((x.shape[0], 1)), x))
 
 
-def process_data(x_train, x_test, add_constant_col=True):
-    """
-    Impute missing data and compute inverse log values of positive columns
-    """
-    # Impute missing data
-    # x_train, x_test = missing_values(x_train, x_test)
+def Random_Over_Sampling(tX, y):
     
+        # Class count
+        count_class_0 = np.count_nonzero(y==-1)
+        count_class_1 = np.count_nonzero(y==1)
+
+        # Divide by class
+        class_0 = tX[np.where(y==-1)]
+        class_1 = tX[np.where(y==1)]
+        
+        count_class_1_over = count_class_0-count_class_1
+        #count_class_1_over = int((count_class_0-count_class_1)/2)
+        class_1_over_indx = random.sample(set(np.arange(count_class_1)), count_class_1_over)
+        class_1_over = class_1[class_1_over_indx]
+
+        tX = np.concatenate((tX, class_1_over))
+        y = np.concatenate((y, np.ones(count_class_1_over)))
+
+        new_ord = np.random.permutation(y.shape[0])
+        tX = tX[new_ord]
+        y = y[new_ord]
+        
+        return tX, y
+
+    
+# logaritmic traformation for positive features
+def log_transf(x_train, x_test, D):
+    
+    # find the positive features
     inv_log_cols=[]
-    for i in range(x_train.shape[1]):
-            tX_i = x_train[:,i]
-            if tX_i[tX_i>0].shape[0] == x_train.shape[0]:
+    for i in range(D):
+            x_train_i = x_train[:,i]
+            if x_train_i[x_train_i>0].shape[0] == x_train.shape[0]:
                     inv_log_cols.append(i)
 
     # Create inverse log values of features which are positive in value.
-    x_train_inv_log_cols = np.log(1 / (1 + x_train[:, inv_log_cols]))
-    x_train = np.hstack((x_train, x_train_inv_log_cols))
-
+    x_train_transf = np.log(1 / (1 + x_train[:, inv_log_cols]))
+    x_train = np.hstack((x_train, x_train_transf))
+    
+    x_test_transf = np.log(1 / (1 + x_test[:, inv_log_cols]))
+    x_test = np.hstack((x_test, x_test_transf))
+    
+    return x_train, x_test
+    
+    
     x_test_inv_log_cols = np.log(1 / (1 + x_test[:, inv_log_cols]))
     x_test = np.hstack((x_test, x_test_inv_log_cols))
+    
+    
+    
 
+def process_data(x_train, x_test,  add_constant_col=True):
+    """
+    Impute missing data and compute inverse log values of positive columns
+    """
+    # Random Over Sampling
+    # x_train, y_train = Random_Over_Sampling(x_train, y_train)
+    
+    # Impute missing data
+    x_train, x_test = missing_values(x_train, x_test)
+    
+    # logaritmic traformation for positive features
+    x_train, x_test = log_transf(x_train, x_test, x_train.shape[1])
+   
     x_train, mean_x_train, std_x_train = standardize(x_train)
-    x_test, mean_x_test, std_x_test = standardize(x_test, mean_x_train, std_x_train)
+    x_test, _, _ = standardize(x_test, mean_x_train, std_x_train)
 
     if add_constant_col is True:
         x_train = add_constant_column(x_train)
         x_test = add_constant_column(x_test)
-
+        
     return x_train, x_test
 
-# try to use median, avoid this function
-def impute_values(x_train, x_test):
-    """ Replace missing values (NA) by the most frequent value of the column. """
-    for i in range(x_train.shape[1]):
-        # If NA values in column
-        if na(x_train[:, i]):
-            msk_train = (x_train[:, i] != -999.)
-            msk_test = (x_test[:, i] != -999.)
-            # Replace NA values with most frequent value
-            values, counts = np.unique(x_train[msk_train, i], return_counts=True)
-            # If there are values different from NA
-            if (len(values) > 1):
-                x_train[~msk_train, i] = values[np.argmax(counts)]
-                x_test[~msk_test, i] = values[np.argmax(counts)]
-            else:
-                x_train[~msk_train, i] = 0
-                x_test[~msk_test, i] = 0
 
-    return x_train, x_test
 
-def na(x):
-    """ Identifies missing values. """
-    return np.any(x == -999)
+def get_jet_masks(x):
+    """
+    Returns 3 masks corresponding to the rows of x with a jet value
+    of 0, 1 and  2 or 3 respectively.
+    """
+    return {
+        0: x[:, 22] == 0,
+        1: x[:, 22] == 1,
+        2: np.logical_or(x[:, 22] == 2, x[:, 22] == 3)
+    }
