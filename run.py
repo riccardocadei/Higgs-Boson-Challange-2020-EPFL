@@ -11,6 +11,15 @@ from crossValidation import *
 
 seed=20
 
+from zipfile import ZipFile 
+  
+# # specifying the zip file name 
+file_name = 'Data/test.csv.zip'
+  
+# opening the zip file in READ mode 
+with ZipFile(file_name, 'r') as zip: 
+    zip.extractall('Data/') 
+
 #load the dataset 
 y, tx, ids = load_csv_data('Data/train.csv')
 _, tx_test, ids_test = load_csv_data('Data/test.csv.zip')
