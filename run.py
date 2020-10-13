@@ -13,7 +13,7 @@ seed=20
 
 #load the dataset 
 y, tx, ids = load_csv_data('Data/train.csv')
-_, tx_test, ids_test = load_csv_data('Data/test.csv')
+_, tx_test, ids_test = load_csv_data('Data/test.csv.zip')
 
 #preprocessing
 
