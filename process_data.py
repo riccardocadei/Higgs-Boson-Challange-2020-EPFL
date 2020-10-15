@@ -62,6 +62,12 @@ def Random_Over_Sampling(tX, y):
         
         return tX, y
 
+def build_poly(x, degree):
+    """polynomial basis functions for input data x, for j=0 up to j=degree."""
+    poly = np.ones(x.shape[0], dtype=int)
+    for d in range(1,degree+1):
+        poly = np.c_[poly, np.power(x,d)]
+    return poly
     
 # logaritmic traformation for positive features
 def log_transf(x_train, x_test, D):
@@ -89,28 +95,49 @@ def log_transf(x_train, x_test, D):
     
     
 
-def process_data(x_train, x_test,  add_constant_col=True):
+def process_data(x_train, x_test,  add_constant_col=False):
     """
     Impute missing data and compute inverse log values of positive columns
     """
     # Random Over Sampling
     # x_train, y_train = Random_Over_Sampling(x_train, y_train)
     
+    # Consider the 0s in the 'PRI_jet_all_pt' as missing values
+    x_train[:,-1]=np.where(x_train[:,-1]==0, -999, x_train[:,-1])
+                               
+    # Delete the Column 'PRI_jet_num'
+    x_train = np.delete(x_train, 22, 1)
+    x_test = np.delete(x_test, 22, 1)
+    
     # Impute missing data
     x_train, x_test = missing_values(x_train, x_test)
     
-    # logaritmic traformation for positive features
-    x_train, x_test = log_transf(x_train, x_test, x_train.shape[1])
-   
+    # Standardization   
     x_train, mean_x_train, std_x_train = standardize(x_train)
     x_test, _, _ = standardize(x_test, mean_x_train, std_x_train)
-
+    
+    # Add an intercepta
     if add_constant_col is True:
         x_train = add_constant_column(x_train)
         x_test = add_constant_column(x_test)
         
     return x_train, x_test
 
+
+def phi(x_train, x_test, degree=10):
+    
+    #D = x_train.shape[0]
+    
+    phi_x_train = build_poly(x_train, degree)
+    phi_x_test = build_poly(x_test, degree)
+    
+    # logaritmic traformation for positive features
+    #x_train, x_test = log_transf(x_train, x_test, D)
+    
+    return phi_x_train, phi_x_test
+    
+    
+    
 
 
 def get_jet_masks(x):

@@ -34,11 +34,14 @@ def build_k_indices(y, k_fold, seed):
     return np.array(k_indices)
 
 
-def cross_validation_least_squares_GD(y, x, k_indices, k, max_iters, gamma):
+
+
+### MODEL 1
+
+def cross_validation_least_squares_GD(y, x, k_indices, k, max_iters, gamma, degrees):
     """
-    Completes k-fold cross-validation using the ridge regression method.
-    Here, we build polynomial features and create four subsets using
-    the jet feature.
+    Completes k-fold cross-validation using the least squares method
+    solved by Gradient Descent.
     """
     # get k'th subgroup in test, others in train
     msk_test = k_indices[k]
@@ -63,7 +66,9 @@ def cross_validation_least_squares_GD(y, x, k_indices, k, max_iters, gamma):
         y_train = y_train_all_jets[msk_jets_train[idx]]
 
         # data pre-processing
-        x_train, x_test = process_data(x_train, x_test, True)
+        x_train, x_test = process_data(x_train, x_test)
+        # transformation
+        x_train, x_test = phi(x_train, x_test, degrees[idx])
 
         # compute weights using given method
         loss, weights = least_squares_GD(y_train, x_train, None, max_iters, gamma)
@@ -78,12 +83,12 @@ def cross_validation_least_squares_GD(y, x, k_indices, k, max_iters, gamma):
     return acc_train, acc_test
 
 
+#### MODEL 3
 
-def cross_validation_ridge_regression(y, x, k_indices, k, lambdas):
+def cross_validation_least_squares(y, x, k_indices, k, degrees):
     """
-    Completes k-fold cross-validation using the ridge regression method.
-    Here, we build polynomial features and create four subsets using
-    the jet feature.
+    Completes k-fold cross-validation using the least squares method
+    solved by Normal Equations.
     """
     # get k'th subgroup in test, others in train
     msk_test = k_indices[k]
@@ -108,7 +113,54 @@ def cross_validation_ridge_regression(y, x, k_indices, k, lambdas):
         y_train = y_train_all_jets[msk_jets_train[idx]]
 
         # data pre-processing
-        x_train, x_test = process_data(x_train, x_test, True)
+        x_train, x_test = process_data(x_train, x_test)
+        # transformation
+        x_train, x_test = phi(x_train, x_test, degrees[idx])
+        
+        # compute weights using given method
+        loss, weights = least_squares(y_train, x_train)
+        
+        y_train_pred[msk_jets_train[idx]] = predict_labels(weights, x_train)
+        y_test_pred[msk_jets_test[idx]] = predict_labels(weights, x_test)
+
+    # compute accuracy for train and test data
+    acc_train = compute_accuracy(y_train_pred, y_train_all_jets)
+    acc_test = compute_accuracy(y_test_pred, y_test_all_jets)
+
+    return acc_train, acc_test
+
+##### MODEL 4
+
+def cross_validation_ridge_regression(y, x, k_indices, k, lambdas, degrees):
+    """
+    Completes k-fold cross-validation using the ridge regression method.
+    """
+    # get k'th subgroup in test, others in train
+    msk_test = k_indices[k]
+    msk_train = np.delete(k_indices, (k), axis=0).ravel()
+
+    x_train_all_jets = x[msk_train, :]
+    x_test_all_jets = x[msk_test, :]
+    y_train_all_jets = y[msk_train]
+    y_test_all_jets = y[msk_test]
+
+    # split in 4 subsets the training set
+    msk_jets_train = get_jet_masks(x_train_all_jets)
+    msk_jets_test = get_jet_masks(x_test_all_jets)
+
+    # initialize output vectors
+    y_train_pred = np.zeros(len(y_train_all_jets))
+    y_test_pred = np.zeros(len(y_test_all_jets))
+
+    for idx in range(len(msk_jets_train)):
+        x_train = x_train_all_jets[msk_jets_train[idx]]
+        x_test = x_test_all_jets[msk_jets_test[idx]]
+        y_train = y_train_all_jets[msk_jets_train[idx]]
+
+        # data pre-processing
+        x_train, x_test = process_data(x_train, x_test)
+        # transformation
+        x_train, x_test = phi(x_train, x_test, degrees[idx])
 
         # compute weights using given method
         loss, weights = ridge_regression(y=y_train, tx=x_train, lambda_=lambdas[idx])
