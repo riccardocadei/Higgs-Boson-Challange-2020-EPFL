@@ -94,7 +94,7 @@ def ridge_regression(y, tx, lambda_):
     """
     x_t = tx.T
     lambd = lambda_ * 2 * len(y)
-    w = np.dot(np.dot(np.linalg.inv(np.dot(x_t, tx) + lambd * np.eye(tx.shape[1])), x_t), y)
+    w = np.linalg.solve (np.dot(x_t, tx) + lambd * np.eye(tx.shape[1]), np.dot(x_t,y)) 
     loss = compute_mse(y, tx, w)
     return loss,w
 
@@ -132,7 +132,7 @@ def logistic_regression(y, tx, initial_w=None, batch_size=1, max_iters=100, gamm
     w = initial_w
 
     # start the logistic regression
-    for iter in range(max_iters):
+    for i in range(max_iters):
         # get loss and update w.
         for y_batch, tx_batch in batch_iter(y, tx, batch_size=batch_size, num_batches=1):
             _, w = learning_by_gradient_descent(y_batch, tx_batch, w, gamma)
@@ -140,8 +140,8 @@ def logistic_regression(y, tx, initial_w=None, batch_size=1, max_iters=100, gamm
             losses.append(calculate_loss(y,tx,w))
             if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
                 break
-            if iter % int(max_iters/100) == 0:
-                print(losses[-1],iter,'/{tot}'.format(tot=max_iters))
+            if i % int(max_iters/5) == 0:
+                print(losses[-1],i,'/{tot}'.format(tot=max_iters))
 
     return losses[-1], w
     

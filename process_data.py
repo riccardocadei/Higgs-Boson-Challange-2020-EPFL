@@ -48,8 +48,8 @@ def Random_Over_Sampling(tX, y):
         class_0 = tX[np.where(y==-1)]
         class_1 = tX[np.where(y==1)]
         
-        count_class_1_over = count_class_0-count_class_1
-        #count_class_1_over = int((count_class_0-count_class_1)/2)
+        #count_class_1_over = count_class_0-count_class_1
+        count_class_1_over = int((count_class_0-count_class_1)/3)
         class_1_over_indx = random.sample(set(np.arange(count_class_1)), count_class_1_over)
         class_1_over = class_1[class_1_over_indx]
 
@@ -61,6 +61,13 @@ def Random_Over_Sampling(tX, y):
         y = y[new_ord]
         
         return tX, y
+    
+def outliers(x, alpha=0):
+    for i in range(x.shape[1]):
+        x[:,i][ x[:,i]<np.percentile(x[:,i],alpha) ] = np.percentile(x[:,i],alpha)
+        x[:,i][ x[:,i]>np.percentile(x[:,i],100-alpha) ] = np.percentile(x[:,i],100-alpha)
+    
+    return x
 
 def build_poly(x, degree):
     """polynomial basis functions for input data x, for j=0 up to j=degree."""
@@ -74,17 +81,21 @@ def log_transf(x_train, x_test, D):
     
     # find the positive features
     inv_log_cols=[]
-    for i in range(D):
+    for i in range(1,D+1):
             x_train_i = x_train[:,i]
             if x_train_i[x_train_i>0].shape[0] == x_train.shape[0]:
                     inv_log_cols.append(i)
 
     # Create inverse log values of features which are positive in value.
     x_train_transf = np.log(1 / (1 + x_train[:, inv_log_cols]))
-    x_train = np.hstack((x_train, x_train_transf))
+    x_train_transf2 = np.log(x_train[:, inv_log_cols])
+    x_train_transf3 = np.sqrt(x_train[:, inv_log_cols])
+    x_train = np.hstack((x_train, x_train_transf, x_train_transf2, x_train_transf3))
     
     x_test_transf = np.log(1 / (1 + x_test[:, inv_log_cols]))
-    x_test = np.hstack((x_test, x_test_transf))
+    x_test_transf2 = np.log(x_test[:, inv_log_cols])
+    x_test_transf3 = np.sqrt(x_test[:, inv_log_cols])
+    x_test = np.hstack((x_test, x_test_transf, x_test_transf2, x_test_transf3))
     
     return x_train, x_test
     
@@ -95,26 +106,26 @@ def log_transf(x_train, x_test, D):
     
     
 
-def process_data(x_train, x_test,  add_constant_col=False):
+def process_data(x_train, x_test, alpha=1, add_constant_col=False):
     """
     Impute missing data and compute inverse log values of positive columns
     """
-    # Random Over Sampling
-    # x_train, y_train = Random_Over_Sampling(x_train, y_train)
     
     # Consider the 0s in the 'PRI_jet_all_pt' as missing values
     x_train[:,-1]=np.where(x_train[:,-1]==0, -999, x_train[:,-1])
                                
     # Delete the Column 'PRI_jet_num'
-    x_train = np.delete(x_train, 22, 1)
-    x_test = np.delete(x_test, 22, 1)
+    x_train = np.delete(x_train, [15,16,18,20,22], 1)
+    x_test = np.delete(x_test, [15,16,18,20,22], 1)
+    #x_train = np.delete(x_train, 22, 1)
+    #x_test = np.delete(x_test, 22, 1)
     
     # Impute missing data
     x_train, x_test = missing_values(x_train, x_test)
     
-    # Standardization   
-    x_train, mean_x_train, std_x_train = standardize(x_train)
-    x_test, _, _ = standardize(x_test, mean_x_train, std_x_train)
+    # outliers
+    x_train = outliers(x_train, alpha)
+    x_test = outliers(x_test, alpha)
     
     # Add an intercepta
     if add_constant_col is True:
@@ -126,15 +137,20 @@ def process_data(x_train, x_test,  add_constant_col=False):
 
 def phi(x_train, x_test, degree=10):
     
-    #D = x_train.shape[0]
+    D = x_train.shape[1]
     
-    phi_x_train = build_poly(x_train, degree)
-    phi_x_test = build_poly(x_test, degree)
+    # Polynomial expansion
+    x_train = build_poly(x_train, degree)
+    x_test = build_poly(x_test, degree)
     
-    # logaritmic traformation for positive features
-    #x_train, x_test = log_transf(x_train, x_test, D)
+    # other trasformation for positive features
+    x_train, x_test = log_transf(x_train, x_test, D)
     
-    return phi_x_train, phi_x_test
+    # Standardization   
+    x_train[:,1:], mean_x_train, std_x_train = standardize(x_train[:,1:])
+    x_test[:,1:], _, _ = standardize(x_test[:,1:], mean_x_train, std_x_train)
+    
+    return x_train, x_test
     
     
     
@@ -148,5 +164,6 @@ def get_jet_masks(x):
     return {
         0: x[:, 22] == 0,
         1: x[:, 22] == 1,
-        2: np.logical_or(x[:, 22] == 2, x[:, 22] == 3)
+        2: x[:, 22] == 2, 
+        3: x[:, 22] == 3
     }
