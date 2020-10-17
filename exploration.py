@@ -14,7 +14,6 @@ def featuresPlot(tX,featuresNames):
     for i in range(len(featuresNames)):
         idRed = np.arange(len(tX))[tX[:,i] == -999]
         idBlue = np.delete(np.arange(len(tX)),idRed)
-        print(idRed)
         fig = plt.figure()
         plt.plot(idBlue,tX[idBlue,i],'b')
         plt.plot(idRed,np.ones(len(idRed))*np.min(tX[idBlue,i]),'r')
@@ -27,7 +26,7 @@ def featuresPlot(tX,featuresNames):
 def distributionsPlot(y,tX,featuresNames):
     savetX = tX
     savey = y
-
+    alphaQuantile = 0.05
 
     for i in range(len(featuresNames)):
 
@@ -37,15 +36,15 @@ def distributionsPlot(y,tX,featuresNames):
         idPositive = [y==1][0]
         idNegative = [y==-1][0]
         print(y.shape,tX.shape,idNegative.shape)
-        upperNegQuantile = np.quantile(tX[idNegative,i],0.95,axis=0)
-        lowerNegQuantile = np.quantile(tX[idNegative,i],0.05,axis=0)
-        upperPosQuantile = np.quantile(tX[idPositive,i],0.95,axis=0)
-        lowerPosQuantile = np.quantile(tX[idPositive,i],0.05,axis=0)
+        upperNegQuantile = np.quantile(tX[idNegative,:],1-alphaQuantile,axis=0)
+        lowerNegQuantile = np.quantile(tX[idNegative,:],alphaQuantile,axis=0)
+        upperPosQuantile = np.quantile(tX[idPositive,:],1-alphaQuantile,axis=0)
+        lowerPosQuantile = np.quantile(tX[idPositive,:],alphaQuantile,axis=0)
 
         upperQuantile = max(upperNegQuantile,upperPosQuantile)
         lowerQuantile = max(lowerNegQuantile,lowerPosQuantile)
-        idNegative = [idNegative & (tX[:,i] < upperQuantile) & (tX[:,i]>lowerQuantile)][0]
-        idPositive = [idPositive & (tX[:,i] < upperQuantile) & (tX[:,i]>lowerQuantile)][0]
+        idNegative = [idNegative & (tX[:,:] < upperQuantile) & (tX[:,:]>lowerQuantile)][0]
+        idPositive = [idPositive & (tX[:,:] < upperQuantile) & (tX[:,:]>lowerQuantile)][0]
 
 
         plt.hist(tX[idNegative,i]/len(tX) ,1000, histtype ='step',color='r',label='y == -1')
