@@ -18,8 +18,7 @@ def missing_values(X, X_test):
                   X_test[:,feature] = np.where(X_test[:,feature]==-999, median, X_test[:,feature])
         X = np.delete(X, missing_cols, 1)
         X_test = np.delete(X_test, missing_cols, 1)
-      
-
+        
         return X, X_test
     
 def standardize(x, mean_x=None, std_x=None):
@@ -66,15 +65,29 @@ def outliers(x, alpha=0):
     for i in range(x.shape[1]):
         x[:,i][ x[:,i]<np.percentile(x[:,i],alpha) ] = np.percentile(x[:,i],alpha)
         x[:,i][ x[:,i]>np.percentile(x[:,i],100-alpha) ] = np.percentile(x[:,i],100-alpha)
-    
+        
     return x
+
 
 def build_poly(x, degree):
     """polynomial basis functions for input data x, for j=0 up to j=degree."""
-    poly = np.ones(x.shape[0], dtype=int)
-    for d in range(1,degree+1):
-        poly = np.c_[poly, np.power(x,d)]
+    N, D = x.shape    
+    poly = np.ones(N, dtype=int)
+    poly = np.c_[poly, x] 
+        
+    for i in range(D):
+        for j in range(i,D):
+            x[:,i]
+            x[:,j]
+            poly = np.c_[poly, x[:,i]*x[:,j]]  
+            
+    for d in range(3,degree+1):
+        poly = np.c_[poly, np.power(x,d)] 
+    
+    
     return poly
+
+
     
 # logaritmic traformation for positive features
 def log_transf(x_train, x_test, D):
@@ -164,6 +177,7 @@ def get_jet_masks(x):
     return {
         0: x[:, 22] == 0,
         1: x[:, 22] == 1,
-        2: x[:, 22] == 2, 
-        3: x[:, 22] == 3
+        2: np.logical_or(x[:, 22] == 2, x[:, 22] == 3)
+        #2: x[:, 22] == 2, 
+        #3: x[:, 22] == 3
     }
