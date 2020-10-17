@@ -55,3 +55,6 @@ def distributionsPlot(y,tX,featuresNames):
         plt.title(featuresNames[i], fontsize=12)
         plt.show()
     return 0
+
+def correlationMatrix(tX):
+    return np.cov(tX.T)
