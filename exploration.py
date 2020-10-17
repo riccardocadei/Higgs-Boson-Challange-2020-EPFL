@@ -3,7 +3,7 @@ import numpy as np
 from helpers import *
 from methods import *
 from process_data import *
-from crossValidation import *
+from crossvalidation import *
 from exploration import *
 from matplotlib import pyplot as plt    
 
