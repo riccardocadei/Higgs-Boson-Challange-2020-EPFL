@@ -27,30 +27,29 @@ def featuresPlot(tX,featuresNames):
 def distributionsPlot(y,tX,featuresNames):
     savetX = tX
     savey = y
-
+    alphaQuantile = 0.01
 
     for i in range(len(featuresNames)):
 
         y =  savey[(savetX[:,i] != - 999.0)]
-        tX = np.expand_dims(savetX[(savetX[:,i] != - 999.0),i],axis=1)
+        tX = savetX[(savetX[:,i] != - 999.0),:]
 
         idPositive = [y==1][0]
         idNegative = [y==-1][0]
-        print(y.shape,tX.shape,idNegative.shape)
-        upperNegQuantile = np.quantile(tX[idNegative,i],0.95,axis=0)
-        lowerNegQuantile = np.quantile(tX[idNegative,i],0.05,axis=0)
-        upperPosQuantile = np.quantile(tX[idPositive,i],0.95,axis=0)
-        lowerPosQuantile = np.quantile(tX[idPositive,i],0.05,axis=0)
+        upperNegQuantile = np.quantile(tX[idNegative,i],1-alphaQuantile,axis=0)
+        lowerNegQuantile = np.quantile(tX[idNegative,i],alphaQuantile,axis=0)
+        upperPosQuantile = np.quantile(tX[idPositive,i],1-alphaQuantile,axis=0)
+        lowerPosQuantile = np.quantile(tX[idPositive,i],alphaQuantile,axis=0)
 
         upperQuantile = max(upperNegQuantile,upperPosQuantile)
         lowerQuantile = max(lowerNegQuantile,lowerPosQuantile)
         idNegative = [idNegative & (tX[:,i] < upperQuantile) & (tX[:,i]>lowerQuantile)][0]
         idPositive = [idPositive & (tX[:,i] < upperQuantile) & (tX[:,i]>lowerQuantile)][0]
 
-
-        plt.hist(tX[idNegative,i]/len(tX) ,1000, histtype ='step',color='r',label='y == -1')
-
-        plt.hist(tX[idPositive,i]/len(tX) ,1000, histtype ='step',color='b',label='y == 1')
+        [a,b] = np.histogram(tX[idNegative,i],100)
+        plt.plot(np.polyval(np.polyfit(b[:-1], a/len(tX[idNegative,i]),10), (np.linspace(np.min(b),np.max(b),100))),color='r',label='y == -1')
+        [a,b] = np.histogram(tX[idPositive,i],100)
+        plt.plot(np.polyval(np.polyfit(b[:-1], a/len(tX[idPositive,i]),10), (np.linspace(np.min(b),np.max(b),100))),color='b',label='y == 1')
 
         plt.legend(loc = "upper right")
         plt.title(featuresNames[i], fontsize=12)
