@@ -77,9 +77,13 @@ def build_poly(x, degree):
         
     for i in range(D):
         for j in range(i,D):
-            x[:,i]
-            x[:,j]
             poly = np.c_[poly, x[:,i]*x[:,j]]  
+    
+    for i in range(D):
+        for j in range(i,D):
+            for k in range(j,D):
+                poly = np.c_[poly, x[:,i]*x[:,j]*x[:,k]]  
+
             
     for d in range(3,degree+1):
         poly = np.c_[poly, np.power(x,d)] 
