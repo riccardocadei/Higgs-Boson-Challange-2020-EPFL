@@ -186,3 +186,48 @@ def get_jet_masks(x):
         #2: x[:, 22] == 2, 
         #3: x[:, 22] == 3
     }
+
+# unfortunately too expensive
+def impute(x):
+    
+    remember=x[:,22]
+    N,D = x.shape
+    idx = get_jet_masks(x)
+    
+    x, x = missing_values(x, x)
+    x,_,_ = standardize (x)
+    
+    cols = set(range(D))
+    
+    # class 1
+    col1 = set([4,5,6,12,26,27,28])
+    col1n = cols-col1
+    
+    idx23 = np.array(idx[2])+np.array(idx[3])
+    
+    x1 = x[idx[1],:]
+    x23 = x[idx23,:]
+    for j in col1:
+        print(j)
+        for i in range(x[idx[1]].shape[0]):
+                k = np.argmin(abs((x23[:1000,:][:,list(col1n)]-x[i,list(col1n)])).sum(axis=1))
+                x1[i,j]= x23[:1000,:][k,j]
+    x[idx[1],:] = x1
+    
+    # class 0
+    col0= set([23,24,25,29]).union(col1)
+    col0n = cols-col0
+    idx123 = np.array(idx[1])+np.array(idx[2])+np.array(idx[3])
+    
+    x0=x[idx[0],:]
+    x123=x[idx123,:]
+    for j in col0:
+        print(j)
+        for i in range(x[idx[1]].shape[0]):
+                k = np.argmin(abs((x123[:1000,:][:,list(col0n)]-x[i,list(col0n)])).sum(axis=1))
+                x0[i,j]= x123[:1000,:][k,j]
+    x[idx[0],:] = x0
+    
+    x[:,22]=remember
+    
+    return x
