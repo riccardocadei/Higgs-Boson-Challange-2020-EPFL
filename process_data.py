@@ -1,5 +1,7 @@
 import numpy as np
 import random
+from sklearn.decomposition import PCA
+
 
 def missing_values(X, X_test): 
         N, D = X.shape
@@ -72,17 +74,18 @@ def outliers(x, alpha=0):
 def build_poly(x, degree):
     """polynomial basis functions for input data x, for j=0 up to j=degree."""
     N, D = x.shape    
-    poly = np.ones(N, dtype=int)
-    poly = np.c_[poly, x] 
+    #poly = np.ones(N, dtype=int)
+    #poly = np.c_[poly, x] 
+    poly = x 
         
     for i in range(D):
         for j in range(i,D):
             poly = np.c_[poly, x[:,i]*x[:,j]]  
     
-    #for i in range(D):
-    #   for j in range(i,D):
-    #        for k in range(j,D):
-    #            poly = np.c_[poly, x[:,i]*x[:,j]*x[:,k]]  
+    for i in range(D):
+       for j in range(i,D):
+            for k in range(j,D):
+                poly = np.c_[poly, x[:,i]*x[:,j]*x[:,k]]  
 
             
     for d in range(3,degree+1):
@@ -98,7 +101,7 @@ def other_transf(x_train, x_test, D):
     
     # find the positive features
     inv_log_cols=[]
-    for i in range(1,D+1):
+    for i in range(D):
             x_train_i = x_train[:,i]
             if x_train_i[x_train_i>0].shape[0] == x_train.shape[0]:
                     inv_log_cols.append(i)
@@ -165,9 +168,16 @@ def phi(x_train, x_test, degree=10):
     #x_train[:,1:]= temp[:N,:]
     #x_test[:,1:]= temp[N:,:]
                    
-        
     x_train[:,1:], mean_x_train, std_x_train = standardize(x_train[:,1:])
     x_test[:,1:], _, _ = standardize(x_test[:,1:], mean_x_train, std_x_train)
+    
+    pca = PCA(n_components = 500)
+    pca.fit(x_train)
+    x_train = pca.transform(x_train)
+    x_test = pca.transform(x_test)
+    
+    x_train = add_constant_column(x_train)
+    x_test = add_constant_column(x_test)
     
     return x_train, x_test
     
