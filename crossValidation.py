@@ -162,18 +162,18 @@ def cross_validation_least_squares(y, x, k_indices, k, degrees, alpha):
         x_train = x_train_all_jets[msk_jets_train[idx]]
         x_test = x_test_all_jets[msk_jets_test[idx]]
         y_train = y_train_all_jets[msk_jets_train[idx]]
-	
-	if len(x_train!=0):
-		# data pre-processing
-		x_train, x_test = process_data(x_train, x_test, alpha)
-		# transformation
-		x_train, x_test = phi(x_train, x_test, degrees[idx])
-		
-		# compute weights using given method
-		loss, weights = least_squares(y_train, x_train)
-		
-		y_train_pred[msk_jets_train[idx]] = predict_labels(weights, x_train)
-		y_test_pred[msk_jets_test[idx]] = predict_labels(weights, x_test)
+
+        if len(x_train!=0):
+            # data pre-processing
+            x_train, x_test = process_data(x_train, x_test, alpha)
+            # transformation
+            x_train, x_test = phi(x_train, x_test, degrees[idx])
+
+            # compute weights using given method
+            loss, weights = least_squares(y_train, x_train)
+
+            y_train_pred[msk_jets_train[idx]] = predict_labels(weights, x_train)
+            y_test_pred[msk_jets_test[idx]] = predict_labels(weights, x_test)
 
     # compute accuracy for train and test data
     acc_train = compute_accuracy(y_train_pred, y_train_all_jets)
@@ -208,18 +208,18 @@ def cross_validation_ridge_regression(y, x, k_indices, k, lambdas, degrees, alph
         x_train = x_train_all_jets[msk_jets_train[idx]]
         x_test = x_test_all_jets[msk_jets_test[idx]]
         y_train = y_train_all_jets[msk_jets_train[idx]]
-	
-	if len(x_train!=0):
-		# data pre-processing
-		x_train, x_test = process_data(x_train, x_test, alpha)
-		# transformation
-		x_train, x_test = phi(x_train, x_test, degrees[idx])
 
-		# compute weights using given method
-		loss, weights = ridge_regression(y=y_train, tx=x_train, lambda_=lambdas[idx])
-		
-		y_train_pred[msk_jets_train[idx]] = predict_labels(weights, x_train)
-		y_test_pred[msk_jets_test[idx]] = predict_labels(weights, x_test)
+        if len(x_train!=0):
+            # data pre-processing
+            x_train, x_test = process_data(x_train, x_test, alpha)
+            # transformation
+            x_train, x_test = phi(x_train, x_test, degrees[idx])
+
+            # compute weights using given method
+            loss, weights = ridge_regression(y=y_train, tx=x_train, lambda_=lambdas[idx])
+            
+            y_train_pred[msk_jets_train[idx]] = predict_labels(weights, x_train)
+            y_test_pred[msk_jets_test[idx]] = predict_labels(weights, x_test)
 
     # compute accuracy for train and test data
     acc_train = compute_accuracy(y_train_pred, y_train_all_jets)

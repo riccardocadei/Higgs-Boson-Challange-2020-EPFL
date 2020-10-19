@@ -79,10 +79,10 @@ def build_poly(x, degree):
         for j in range(i,D):
             poly = np.c_[poly, x[:,i]*x[:,j]]  
     
-    for i in range(D):
-        for j in range(i,D):
-            for k in range(j,D):
-                poly = np.c_[poly, x[:,i]*x[:,j]*x[:,k]]  
+    #for i in range(D):
+    #   for j in range(i,D):
+    #        for k in range(j,D):
+    #            poly = np.c_[poly, x[:,i]*x[:,j]*x[:,k]]  
 
             
     for d in range(3,degree+1):
@@ -94,7 +94,7 @@ def build_poly(x, degree):
 
     
 # logaritmic traformation for positive features
-def log_transf(x_train, x_test, D):
+def other_transf(x_train, x_test, D):
     
     # find the positive features
     inv_log_cols=[]
@@ -104,21 +104,17 @@ def log_transf(x_train, x_test, D):
                     inv_log_cols.append(i)
 
     # Create inverse log values of features which are positive in value.
-    x_train_transf = np.log(1 / (1 + x_train[:, inv_log_cols]))
-    x_train_transf2 = np.log(x_train[:, inv_log_cols])
-    x_train_transf3 = np.sqrt(x_train[:, inv_log_cols])
-    x_train = np.hstack((x_train, x_train_transf, x_train_transf2, x_train_transf3))
+    x_train_t1 = np.log(1 / (1 + x_train[:, inv_log_cols]))
+    x_train_t2 = np.log(x_train[:, inv_log_cols])
+    x_train_t3 = np.sqrt(x_train[:, inv_log_cols])
+    x_train = np.hstack((x_train, x_train_t1, x_train_t2, x_train_t3))
     
-    x_test_transf = np.log(1 / (1 + x_test[:, inv_log_cols]))
-    x_test_transf2 = np.log(x_test[:, inv_log_cols])
-    x_test_transf3 = np.sqrt(x_test[:, inv_log_cols])
-    x_test = np.hstack((x_test, x_test_transf, x_test_transf2, x_test_transf3))
+    x_test_t1 = np.log(1 / (1 + x_test[:, inv_log_cols]))
+    x_test_t2 = np.log(x_test[:, inv_log_cols])
+    x_test_t3 = np.sqrt(x_test[:, inv_log_cols])
+    x_test = np.hstack((x_test, x_test_t1, x_test_t2, x_test_t3))
     
     return x_train, x_test
-    
-    
-    x_test_inv_log_cols = np.log(1 / (1 + x_test[:, inv_log_cols]))
-    x_test = np.hstack((x_test, x_test_inv_log_cols))
     
     
     
@@ -154,23 +150,28 @@ def process_data(x_train, x_test, alpha=1, add_constant_col=False):
 
 def phi(x_train, x_test, degree=10):
     
-    D = x_train.shape[1]
+    N, D = x_train.shape
     
     # Polynomial expansion
     x_train = build_poly(x_train, degree)
     x_test = build_poly(x_test, degree)
     
     # other trasformation for positive features
-    x_train, x_test = log_transf(x_train, x_test, D)
+    x_train, x_test = other_transf(x_train, x_test, D)
     
-    # Standardization   
+    # Standardization  
+    #temp = np.vstack([x_train[:,1:],x_test[:,1:]])
+    #temp,_,_= standardize(temp)
+    #x_train[:,1:]= temp[:N,:]
+    #x_test[:,1:]= temp[N:,:]
+                   
+        
     x_train[:,1:], mean_x_train, std_x_train = standardize(x_train[:,1:])
     x_test[:,1:], _, _ = standardize(x_test[:,1:], mean_x_train, std_x_train)
     
     return x_train, x_test
     
-    
-    
+        
 
 
 def get_jet_masks(x):

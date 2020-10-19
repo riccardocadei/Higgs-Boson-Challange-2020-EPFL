@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from methods import *
 from helpers import *
 from process_data import *
-from crossValidation import *
+from crossvalidation import *
 
 def best_degree_lamb_selection(degrees, lambdas, k_fold, y, tx, alpha, seed):
     # split data in k fold
