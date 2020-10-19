@@ -3,7 +3,7 @@ import numpy as np
 from helpers import *
 from methods import *
 from process_data import *
-from crossvalidation import *
+from crossValidation import *
 from exploration import *
 from matplotlib import pyplot as plt    
 
@@ -14,7 +14,6 @@ def featuresPlot(tX,featuresNames):
     for i in range(len(featuresNames)):
         idRed = np.arange(len(tX))[tX[:,i] == -999]
         idBlue = np.delete(np.arange(len(tX)),idRed)
-        print(idRed)
         fig = plt.figure()
         plt.plot(idBlue,tX[idBlue,i],'b')
         plt.plot(idRed,np.ones(len(idRed))*np.min(tX[idBlue,i]),'r')
@@ -27,7 +26,7 @@ def featuresPlot(tX,featuresNames):
 def distributionsPlot(y,tX,featuresNames):
     savetX = tX
     savey = y
-    alphaQuantile = 0.00
+    alphaQuantile = 0.05
 
     for i in range(len(featuresNames)):
 
@@ -46,12 +45,18 @@ def distributionsPlot(y,tX,featuresNames):
         idNegative = [idNegative & (tX[:,i] < upperQuantile) & (tX[:,i]>lowerQuantile)][0]
         idPositive = [idPositive & (tX[:,i] < upperQuantile) & (tX[:,i]>lowerQuantile)][0]
 
-        [a,b] = np.histogram(tX[idNegative,i],100)
-        #plt.plot(np.polyval(np.polyfit(b[:-1], a/len(tX[idNegative,i]),15), (np.linspace(np.min(b),np.max(b),100))),color='r',label='y == -1')
-        [a,b] = np.histogram(tX[idPositive,i],100)
-        #plt.plot(np.polyval(np.polyfit(b[:-1], a/len(tX[idPositive,i]),15), (np.linspace(np.min(b),np.max(b),100))),color='b',label='y == 1')
-        plt.hist(tX[idNegative,i]/len(tX[idNegative,i]) ,5000, histtype ='step',color='r',label='y == 1',density=True)      
-        plt.hist(tX[idPositive,i]/len(tX[idPositive,i]) ,5000, histtype ='step',color='b',label='y == -1',density=True)  
+        #[a,b] = np.histogram(tX[idNegative,i],100)
+        ##plt.plot(np.polyval(np.polyfit(b[:-1], a/len(tX[idNegative,i]),10), (np.linspace(np.min(b),np.max(b),100))),color='r',label='y == -1')
+        #plt.plot(b[:-1], a,color='r',label='y == -1')
+        #[a,b] = np.histogram(tX[idPositive,i],100)
+        ##plt.plot(np.polyval(np.polyfit(b[:-1], a/len(tX[idPositive,i]),10), (np.linspace(np.min(b),np.max(b),100))),color='b',label='y == 1')
+        #plt.plot(b[:-1], a,color='b',label='y == 1')        
+        #plt.legend(loc = "upper right")
+        #plt.title("{name}, feature: {id}/{tot}".format(name=featuresNames[i],id=i,tot=len(featuresNames)), fontsize=12)
+        #plt.show()
+
+        plt.hist(tX[idNegative,i]/len(tX[:,i]) ,100, histtype ='step',color='r',label='y == 1',density=True)      
+        plt.hist(tX[idPositive,i]/len(tX[:,i]) ,100, histtype ='step',color='b',label='y == -1',density=True)  
         plt.legend(loc = "upper right")
         plt.title("{name}, feature: {id}/{tot}".format(name=featuresNames[i],id=i,tot=len(featuresNames)), fontsize=12)
         plt.show()
@@ -59,3 +64,9 @@ def distributionsPlot(y,tX,featuresNames):
 
 def correlationMatrix(tX):
     return np.cov(tX.T)
+
+def featuresVariance(tX,featuresNames):
+    s = np.diag(correlationMatrix(tX))
+    for i in range(len(s)-1):
+        print("{num}/{tot} {name}: {var}".format(num=i,tot=len(s)-2,name=featuresNames[i],var=s[i]))
+    return 0
