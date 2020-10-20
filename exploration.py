@@ -3,8 +3,7 @@ import numpy as np
 from helpers import *
 from methods import *
 from process_data import *
-from crossValidation import *
-from exploration import *
+from crossvalidation import *
 from matplotlib import pyplot as plt    
 
 seed=20
@@ -26,24 +25,26 @@ def featuresPlot(tX,featuresNames):
 def distributionsPlot(y,tX,featuresNames):
     savetX = tX
     savey = y
-    alphaQuantile = 0.05
+    alphaQuantile = 0
 
     for i in range(len(featuresNames)):
 
         y =  savey[(savetX[:,i] != - 999.0)]
         tX = savetX[(savetX[:,i] != - 999.0),:]
+        
+        if tX.shape[0]!=0:
 
-        idPositive = [y==1][0]
-        idNegative = [y==-1][0]
-        upperNegQuantile = np.quantile(tX[idNegative,i],1-alphaQuantile,axis=0)
-        lowerNegQuantile = np.quantile(tX[idNegative,i],alphaQuantile,axis=0)
-        upperPosQuantile = np.quantile(tX[idPositive,i],1-alphaQuantile,axis=0)
-        lowerPosQuantile = np.quantile(tX[idPositive,i],alphaQuantile,axis=0)
+            idPositive = [y==1][0]
+            idNegative = [y==-1][0]
+            upperNegQuantile = np.quantile(tX[idNegative,i],1-alphaQuantile,axis=0)
+            lowerNegQuantile = np.quantile(tX[idNegative,i],alphaQuantile,axis=0)
+            upperPosQuantile = np.quantile(tX[idPositive,i],1-alphaQuantile,axis=0)
+            lowerPosQuantile = np.quantile(tX[idPositive,i],alphaQuantile,axis=0)
 
-        upperQuantile = max(upperNegQuantile,upperPosQuantile)
-        lowerQuantile = max(lowerNegQuantile,lowerPosQuantile)
-        idNegative = [idNegative & (tX[:,i] < upperQuantile) & (tX[:,i]>lowerQuantile)][0]
-        idPositive = [idPositive & (tX[:,i] < upperQuantile) & (tX[:,i]>lowerQuantile)][0]
+            upperQuantile = max(upperNegQuantile,upperPosQuantile)
+            lowerQuantile = max(lowerNegQuantile,lowerPosQuantile)
+            idNegative = [idNegative & (tX[:,i] <= upperQuantile) & (tX[:,i]>=lowerQuantile)][0]
+            idPositive = [idPositive & (tX[:,i] <= upperQuantile) & (tX[:,i]>=lowerQuantile)][0]
 
         #[a,b] = np.histogram(tX[idNegative,i],100)
         ##plt.plot(np.polyval(np.polyfit(b[:-1], a/len(tX[idNegative,i]),10), (np.linspace(np.min(b),np.max(b),100))),color='r',label='y == -1')
@@ -54,12 +55,12 @@ def distributionsPlot(y,tX,featuresNames):
         #plt.legend(loc = "upper right")
         #plt.title("{name}, feature: {id}/{tot}".format(name=featuresNames[i],id=i,tot=len(featuresNames)), fontsize=12)
         #plt.show()
-
-        plt.hist(tX[idNegative,i]/len(tX[:,i]) ,100, histtype ='step',color='r',label='y == 1',density=True)      
-        plt.hist(tX[idPositive,i]/len(tX[:,i]) ,100, histtype ='step',color='b',label='y == -1',density=True)  
-        plt.legend(loc = "upper right")
-        plt.title("{name}, feature: {id}/{tot}".format(name=featuresNames[i],id=i,tot=len(featuresNames)), fontsize=12)
-        plt.show()
+            print(tX[:,i].shape)
+            plt.hist(tX[idNegative,i] ,100, histtype ='step',color='r',label='y == 1',density=True)      
+            plt.hist(tX[idPositive,i] ,100, histtype ='step',color='b',label='y == -1',density=True)  
+            plt.legend(loc = "upper right")
+            plt.title("{name}, feature: {id}/{tot}".format(name=featuresNames[i],id=i,tot=len(featuresNames)-1), fontsize=12)
+            plt.show()
     return 0
 
 def correlationMatrix(tX):
@@ -67,6 +68,6 @@ def correlationMatrix(tX):
 
 def featuresVariance(tX,featuresNames):
     s = np.diag(correlationMatrix(tX))
-    for i in range(len(s)-1):
-        print("{num}/{tot} {name}: {var}".format(num=i,tot=len(s)-2,name=featuresNames[i],var=s[i]))
+    for i in range(len(s)):
+        print("{num}/{tot} {name}: {var}".format(num=i,tot=len(s)-1,name=featuresNames[i],var=s[i]))
     return 0

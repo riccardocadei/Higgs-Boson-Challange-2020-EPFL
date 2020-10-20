@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from methods import *
 from helpers import *
 from process_data import *
+import pandas as pd
 
 # Cross Validation
 
@@ -168,7 +169,6 @@ def cross_validation_least_squares(y, x, k_indices, k, degrees, alpha):
             x_train, x_test = process_data(x_train, x_test, alpha)
             # transformation
             x_train, x_test = phi(x_train, x_test, degrees[idx])
-
             # compute weights using given method
             loss, weights = least_squares(y_train, x_train)
 

@@ -1,6 +1,5 @@
 import numpy as np
 import random
-from sklearn.decomposition import PCA
 
 
 def missing_values(X, X_test): 
@@ -34,6 +33,7 @@ def standardize(x, mean_x=None, std_x=None):
 
     return x, mean_x, std_x  
 
+
 def add_constant_column(x):
     """ Prepend a column of 1 to the matrix. """
     return np.hstack((np.ones((x.shape[0], 1)), x))
@@ -63,6 +63,7 @@ def Random_Over_Sampling(tX, y):
         
         return tX, y
     
+    
 def outliers(x, alpha=0):
     for i in range(x.shape[1]):
         x[:,i][ x[:,i]<np.percentile(x[:,i],alpha) ] = np.percentile(x[:,i],alpha)
@@ -74,51 +75,61 @@ def outliers(x, alpha=0):
 def build_poly(x, degree):
     """polynomial basis functions for input data x, for j=0 up to j=degree."""
     N, D = x.shape    
-    #poly = np.ones(N, dtype=int)
-    #poly = np.c_[poly, x] 
-    poly = x 
+    poly = np.ones(N, dtype=int)
+    poly = np.c_[poly, x] 
+    
+    #for i in range(D):
+        #for j in range(i,D):
+            #poly = np.c_[poly, x[:,i]*x[:,j]]  
+    
+    #for i in range(D):
+    #    for j in range(i,D):
+    #        for k in range(j,D):
+    #            poly = np.c_[poly, x[:,i]*x[:,j]*x[:,k]]  
         
-    for i in range(D):
-        for j in range(i,D):
-            poly = np.c_[poly, x[:,i]*x[:,j]]  
-    
-    for i in range(D):
-       for j in range(i,D):
-            for k in range(j,D):
-                poly = np.c_[poly, x[:,i]*x[:,j]*x[:,k]]  
+    #for d in range(3,degree+1):
+        #poly = np.c_[poly, np.power(x,d)] 
 
-            
-    for d in range(3,degree+1):
-        poly = np.c_[poly, np.power(x,d)] 
-    
-    
     return poly
 
 
-    
-# logaritmic traformation for positive features
+def rad(x,t):
+    N, D = x.shape
+    r = np.zeros([N,D])
+    for i in range(N):
+        for j in range(D):
+            if x[i,j]>0:
+                r[i,j] = x[i,j]**t
+            else:
+                r[i,j] = -(-x[i,j])**t
+        
+    return r    
+
+
+# Other traformation 
 def other_transf(x_train, x_test, D):
     
     # find the positive features
     inv_log_cols=[]
-    for i in range(D):
+    for i in range(1,D+1):
             x_train_i = x_train[:,i]
             if x_train_i[x_train_i>0].shape[0] == x_train.shape[0]:
                     inv_log_cols.append(i)
 
-    # Create inverse log values of features which are positive in value.
+    # Create inverse log values of features which are positive in value,
     x_train_t1 = np.log(1 / (1 + x_train[:, inv_log_cols]))
-    x_train_t2 = np.log(x_train[:, inv_log_cols])
+    x_train_t2 = np.log1p(x_train[:, inv_log_cols])
     x_train_t3 = np.sqrt(x_train[:, inv_log_cols])
     x_train = np.hstack((x_train, x_train_t1, x_train_t2, x_train_t3))
-    
+
     x_test_t1 = np.log(1 / (1 + x_test[:, inv_log_cols]))
-    x_test_t2 = np.log(x_test[:, inv_log_cols])
+    x_test_t2 = np.log1p(x_test[:, inv_log_cols])
     x_test_t3 = np.sqrt(x_test[:, inv_log_cols])
     x_test = np.hstack((x_test, x_test_t1, x_test_t2, x_test_t3))
     
-    return x_train, x_test
-    
+    return x_train, x_test   
+
+
     
     
 
@@ -129,12 +140,21 @@ def process_data(x_train, x_test, alpha=1, add_constant_col=False):
     
     # Consider the 0s in the 'PRI_jet_all_pt' as missing values
     x_train[:,-1]=np.where(x_train[:,-1]==0, -999, x_train[:,-1])
+    
+    x_train[:,[14,17,24,27]]= abs(x_train[:,[14,17,24,27]])
+    x_test[:,[14,17,24,27]]= abs(x_test[:,[14,17,24,27]])
+    
+    x_train[:,24]=np.where(x_train[:,24]==999, -999, x_train[:,24])
+    x_test[:,24]=np.where(x_test[:,24]==999, -999, x_test[:,24])
+    x_train[:,27]=np.where(x_train[:,27]==999, -999, x_train[:,27])
+    x_test[:,27]=np.where(x_test[:,27]==999, -999, x_test[:,27])
+    
                                
     # Delete the Column 'PRI_jet_num'
     x_train = np.delete(x_train, [15,16,18,20,22], 1)
     x_test = np.delete(x_test, [15,16,18,20,22], 1)
-    #x_train = np.delete(x_train, 22, 1)
-    #x_test = np.delete(x_test, 22, 1)
+    #x_train = np.delete(x_train, [8, 16, 22, 26, 15, 18, 20, 25], 1)
+    #x_test = np.delete(x_test, [8, 16, 22, 26, 15, 18, 20, 25], 1)
     
     # Impute missing data
     x_train, x_test = missing_values(x_train, x_test)
@@ -170,14 +190,6 @@ def phi(x_train, x_test, degree=10):
                    
     x_train[:,1:], mean_x_train, std_x_train = standardize(x_train[:,1:])
     x_test[:,1:], _, _ = standardize(x_test[:,1:], mean_x_train, std_x_train)
-    
-    pca = PCA(n_components = 500)
-    pca.fit(x_train)
-    x_train = pca.transform(x_train)
-    x_test = pca.transform(x_test)
-    
-    x_train = add_constant_column(x_train)
-    x_test = add_constant_column(x_test)
     
     return x_train, x_test
     
