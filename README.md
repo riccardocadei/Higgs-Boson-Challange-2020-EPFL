@@ -1,6 +1,12 @@
 # higgs_boson_classification
 CS-433
 
+PROJECT TO DO:
+
+1. Check **twice** the file `main.py` that we will submit. We need to chceck that no external libraries is used, the names are correct, the output are correct.
+2. Remove the normalization term in the `compute_loss` for logistic.
+3. Print graphs comparing all the methods for the final report.
+
 TO DO:
 
 1. Preprocessing:
