@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from methods import *
 from helpers import *
 from process_data import *
-import pandas as pd
+#import pandas as pd
 
 # Cross Validation
 
@@ -119,7 +119,7 @@ def cross_validation_least_squares_GD(y, x, k_indices, k, max_iters, gamma, degr
         x_train, x_test = phi(x_train, x_test, degrees[idx])
 
         # compute weights using given method
-        loss, weights = least_squares_GD(y_train, x_train, None, max_iters, gamma)
+        weights, loss = least_squares_GD(y_train, x_train, None, max_iters, gamma)
         
         y_train_pred[msk_jets_train[idx]] = predict_labels(weights, x_train)
         y_test_pred[msk_jets_test[idx]] = predict_labels(weights, x_test)
@@ -170,7 +170,7 @@ def cross_validation_least_squares(y, x, k_indices, k, degrees, alpha):
             # transformation
             x_train, x_test = phi(x_train, x_test, degrees[idx])
             # compute weights using given method
-            loss, weights = least_squares(y_train, x_train)
+            weights, loss  = least_squares(y_train, x_train)
 
             y_train_pred[msk_jets_train[idx]] = predict_labels(weights, x_train)
             y_test_pred[msk_jets_test[idx]] = predict_labels(weights, x_test)
@@ -216,7 +216,7 @@ def cross_validation_ridge_regression(y, x, k_indices, k, lambdas, degrees, alph
             x_train, x_test = phi(x_train, x_test, degrees[idx])
 
             # compute weights using given method
-            loss, weights = ridge_regression(y=y_train, tx=x_train, lambda_=lambdas[idx])
+            weights,loss = ridge_regression(y=y_train, tx=x_train, lambda_=lambdas[idx])
             
             y_train_pred[msk_jets_train[idx]] = predict_labels(weights, x_train)
             y_test_pred[msk_jets_test[idx]] = predict_labels(weights, x_test)

@@ -47,7 +47,7 @@ for idx in range(len(msks_jet_train)):
     x_train, x_test = process_data(x_train, x_test, alpha)
     x_train, x_test = phi(x_train, x_test, degrees[idx])
 
-    loss, weights = ridge_regression(y_train, x_train, lambdas[idx])
+    weights,loss = ridge_regression(y_train, x_train, lambdas[idx])
 
     y_test_pred = predict_labels(weights, x_test)
 
