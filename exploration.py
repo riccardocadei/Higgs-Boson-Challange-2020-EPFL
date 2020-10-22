@@ -6,7 +6,7 @@ from process_data import *
 from crossvalidation import *
 from matplotlib import pyplot as plt    
 
-seed=20
+seed=10
 
 def featuresPlot(tX,featuresNames):
 # Draw a figure for each feature, on which for each sample we plot its corresponding value
@@ -56,8 +56,8 @@ def distributionsPlot(y,tX,featuresNames):
         #plt.title("{name}, feature: {id}/{tot}".format(name=featuresNames[i],id=i,tot=len(featuresNames)), fontsize=12)
         #plt.show()
             print(tX[:,i].shape)
-            plt.hist(tX[idNegative,i] ,100, histtype ='step',color='r',label='y == 1',density=True)      
-            plt.hist(tX[idPositive,i] ,100, histtype ='step',color='b',label='y == -1',density=True)  
+            plt.hist(tX[idPositive,i] ,100, histtype ='step',color='b',label='y == 1',density=True)      
+            plt.hist(tX[idNegative,i] ,100, histtype ='step',color='r',label='y == -1',density=True)  
             plt.legend(loc = "upper right")
             plt.title("{name}, feature: {id}/{tot}".format(name=featuresNames[i],id=i,tot=len(featuresNames)-1), fontsize=12)
             plt.show()

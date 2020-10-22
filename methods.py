@@ -98,6 +98,7 @@ def ridge_regression(y, tx, lambda_):
     loss = compute_mse(y, tx, w)
     return loss,w
 
+
 #LOGISTIC REGRESSION
 
 def sigmoid(t):

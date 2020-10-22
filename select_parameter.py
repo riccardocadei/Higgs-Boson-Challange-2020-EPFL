@@ -5,34 +5,35 @@ from helpers import *
 from process_data import *
 from crossvalidation import *
 
-def best_degree_lamb_selection(degrees, lambdas, k_fold, y, tx, alpha, seed):
+def best_degree_lamb_selection(degrees, lambdas, alphas, k_fold, y, tx, seed):
     # split data in k fold
     k_indices = build_k_indices(y, k_fold, seed)
     comparison = []
 
-    for deg in degrees:
-        # cross validation
-        degree = [deg]*4
+    for degree in degrees:
         for lamb in lambdas:
-            lambda_ = [lamb]*4
-            accs_test = []
-            for k in range(k_fold):
-              _, acc_test = cross_validation_ridge_regression(y, tx, k_indices, k, lambda_, degree, alpha)
-              accs_test.append(acc_test)
-            comparison.append([deg,lamb,np.mean(accs_test)])
+            for alpha in alphas:
+                accs_test = []
+                for k in range(k_fold):
+                        print(degree,lamb,alpha)
+                        _, acc_test = cross_validation_ridge_regressiontest(y, tx, k_indices, k, lamb, degree, alpha)
+                        accs_test.append(acc_test)
+                        comparison.append([degree,lamb,alpha,np.mean(accs_test)])
     
     comparison = np.array(comparison)
-    ind_best =  np.argmax(comparison[:,2])      
+    ind_best =  np.argmax(comparison[:,3])      
     best_degree = comparison[ind_best,0]
     best_lamb = comparison[ind_best,1]
-    accu = comparison[ind_best,2]
+    best_alpha = comparison[ind_best,2]
+    accu = comparison[ind_best,3]
    
-    return best_degree, best_lamb, accu
+    return best_degree, best_lamb, best_alpha, accu
 
 
-def select_parameters_ridge_regression(y,tX,degrees,lambdas,alpha,k_fold,seed):  
+def select_parameters_ridge_regression(y,tX,degrees,lambdas,alphas,k_fold,seed):  
     par_degree = []
     par_lamb = []
+    par_alpha = []
     accus = []
 
     # split in 4 subsets the training set
@@ -42,12 +43,13 @@ def select_parameters_ridge_regression(y,tX,degrees,lambdas,alpha,k_fold,seed):
         tx = tX[msk_jets[idx]]
         ty = y[msk_jets[idx]]
         
-        degree,lamb,accu = best_degree_lamb_selection(degrees, lambdas, k_fold, ty, tx, alpha,seed)
+        degree,lamb,alpha,accu = best_degree_lamb_selection(degrees, lambdas, alphas, k_fold, ty, tx, seed)
         par_degree.append(degree)
         par_lamb.append(lamb)
+        par_alpha.append(alpha)
         accus.append(accu)
 
-    return par_degree, par_lamb, accus
+    return par_degree, par_lamb, par_alpha, accus
 
 """ for least square """
 def best_degree_selection(degrees, k_fold, y, tx, alpha, seed):
