@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from methods import *
 from helpers import *
 from process_data import *
-import pandas as pd
+#import pandas as pd
 
 
 # Cross Validation
@@ -38,7 +38,12 @@ def build_k_indices(y, k_fold, seed):
 
 ###########
 
+<<<<<<< HEAD
 def cross_validation(y, x, fun, k_indices, k, degrees, alphas, lambdas=None, **kwargs):
+=======
+
+def cross_validation(y, x, fun, k_indices, k, max_iters, gamma, degrees, batch_size):
+>>>>>>> 4e967a9d55f14f0aca5014bbd6daaee43362c607
     """
     Completes k-fold cross-validation for Least Squares with GD, SGD, Normal Equations, Logistic and Regularized Logistic 
     Regression with SGD
@@ -119,10 +124,14 @@ def cross_validation_jet(y, x, fun, k_indices, k, degrees, alpha, lambdas=None, 
         x_train, x_test = phi(x_train, x_test, degrees[idx])
         
         # compute weights using given method
+<<<<<<< HEAD
         if lambdas == None:
             loss, weights = fun(y_train, x_train, **kwargs)
         else:
             loss, weights = fun(y_train, x_train, lambdas[idx], **kwargs)
+=======
+        weights, loss = least_squares_GD(y_train, x_train, None, max_iters, gamma)
+>>>>>>> 4e967a9d55f14f0aca5014bbd6daaee43362c607
         
         y_train_pred[msk_jets_train[idx]] = predict_labels_logistic(weights, x_train)
         y_test_pred[msk_jets_test[idx]] = predict_labels_logistic(weights, x_test)
@@ -177,8 +186,13 @@ def cross_validation_ridge_regression(y, x, k_indices, k, lambdas, degrees, alph
             x_train, x_test = phi(x_train, x_test, degrees[idx])
             
             # compute weights using given method
+<<<<<<< HEAD
             loss, weights = ridge_regression(y=y_train, tx=x_train, lambda_=lambdas[idx])
             
+=======
+            weights, loss  = least_squares(y_train, x_train)
+
+>>>>>>> 4e967a9d55f14f0aca5014bbd6daaee43362c607
             y_train_pred[msk_jets_train[idx]] = predict_labels(weights, x_train)
             y_test_pred[msk_jets_test[idx]] = predict_labels(weights, x_test)
 
@@ -205,6 +219,7 @@ def cross_validation_ridge_regressiontest(y, x, k_indices, k, lambda_, degree, a
     y_test = y[msk_test]
 
     # initialize output vectors
+<<<<<<< HEAD
     y_train_pred = np.zeros(len(y_train))
     y_test_pred = np.zeros(len(y_test))
 
@@ -213,6 +228,24 @@ def cross_validation_ridge_regressiontest(y, x, k_indices, k, lambda_, degree, a
                 
     # transformation
     x_train, x_test = phi(x_train, x_test, degree)
+=======
+    y_train_pred = np.zeros(len(y_train_all_jets))
+    y_test_pred = np.zeros(len(y_test_all_jets))
+
+    for idx in range(len(msk_jets_train)):
+        x_train = x_train_all_jets[msk_jets_train[idx]]
+        x_test = x_test_all_jets[msk_jets_test[idx]]
+        y_train = y_train_all_jets[msk_jets_train[idx]]
+
+        if len(x_train!=0):
+            # data pre-processing
+            x_train, x_test = process_data(x_train, x_test, alpha)
+            # transformation
+            x_train, x_test = phi(x_train, x_test, degrees[idx])
+
+            # compute weights using given method
+            weights,loss = ridge_regression(y=y_train, tx=x_train, lambda_=lambdas[idx])
+>>>>>>> 4e967a9d55f14f0aca5014bbd6daaee43362c607
             
     # compute weights using given method
     loss, weights = ridge_regression(y=y_train, tx=x_train, lambda_=lambda_)
