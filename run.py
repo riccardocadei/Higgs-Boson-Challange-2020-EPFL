@@ -4,7 +4,7 @@ import numpy as np
 from helpers import *
 from methods import *
 from process_data import *
-from crossvalidation import *
+from crossValidation import *
 
 # %load_ext autoreload
 # %autoreload 2
@@ -13,57 +13,47 @@ seed=20
 
 from zipfile import ZipFile 
   
-# # specifying the zip file name 
+# Specifying the zip file name 
 file_name = 'Data/test.csv.zip'
   
-# opening the zip file in READ mode 
+# Opening the zip file in READ mode 
 with ZipFile(file_name, 'r') as zip: 
     zip.extractall('Data/') 
 
-#load the dataset 
-y, tx, ids = load_csv_data('Data/train.csv')
-_, tx_test, ids_test = load_csv_data('Data/test.csv.zip')
+# Load the dataset 
+y, tX, ids = load_csv_data('Data/train.csv')
+_, tX_test, ids_test = load_csv_data('Data/test.csv.zip')
 
-#preprocessing
+# Split data in subsets corresponding to a jet value
+msks_jet_train = get_jet_masks(tX)
+msks_jet_test = get_jet_masks(tX_test)
 
-# higgs = np.count_nonzero(y==1)
-# print(f'From {y.shape[0]} training examples, {higgs} are 1, i.e. the {higgs/y.shape[0]} %')
+# Degree polynomial expansion
+degrees = [5,7,6,6]
+alpha = 0
+# Ridge regression parameters for each subset
+lambdas = [0,0,0,0]
 
-#manage mising values by deleting or ceompleting  feature 
-tx, tx_test = missing_values(tx, tx_test)
+# Vector to store the final prediction
+y_pred = np.zeros(tX_test.shape[0])
 
-#standardization
-tx, mean_tx, std_tx = standardize(tx)
-tx_test, _, _ = standardize(tx, mean_tx, std_tx)
+# Train the model and make prediction 
+for idx in range(len(msks_jet_train)):
+    x_train = tX[msks_jet_train[idx]]
+    x_test = tX_test[msks_jet_test[idx]]
+    y_train = y[msks_jet_train[idx]]
 
-#argumenting extention with inverse log values
-tx, tx_test = process_data(tx, tx_test, True)
+    # Pre-processing of data
+    x_train, x_test = process_data(x_train, x_test, alpha)
+    x_train, x_test = phi(x_train, x_test, degrees[idx])
 
-#1. Least Squares with Gradient Descent
-loss, weights = least_squares_GD(y, tx, initial_w=np.zeros(tx.shape[1]), max_iters=1000, gamma=0.005)
+    loss, weights = ridge_regression(y_train, x_train, lambdas[idx])
 
-#2. Least Squares with Stochastic Gradient Descent
-loss, weights = least_squares_SGD(y, tx, initial_w=np.zeros(tx.shape[1]), batch_size=1, max_iters=1000, gamma=0.005)
+    y_test_pred = predict_labels(weights, x_test)
 
-#3. Least Squares with Normal Equations
-loss, weights = least_squares(y, tx)
+    y_pred[msks_jet_test[idx]] = y_test_pred
 
-#4. Ridge regression with Normal Equations
-loss, weights = ridge_regression(y, tx, 0.2)
-
-# 5. Logistic Regression with Stochastic Gradient Descent
-loss, weights = logistic_regression(y, tX,initial_w= np.random.random(tX.shape[1]))
-
-# 6. Regularized Logistic Regression with Stochastic Gradient Descent
-# ***************************************************
-# loss, weights = reg_logistic regression_SGD(y, tX, initial w, max_iters, gamma)
-# TODO
-# ***************************************************
-
-#Cross Validation
-loss, weights, best_lambda = cross_validation_ridge_regression(y,tx)
-
-#Submission
-OUTPUT_PATH = 'Data/firstsubmission.csv' 
-y_pred = predict_labels(weights, tx_test)
+# Submission
+OUTPUT_PATH = 'data/leastSquares.csv' 
 create_csv_submission(ids_test, y_pred, OUTPUT_PATH)
+
