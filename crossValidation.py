@@ -38,7 +38,7 @@ def build_k_indices(y, k_fold, seed):
 ###########
 
 
-def cross_validation(y, x, fun, k_indices, k, batch_size, max_iters, gamma, degrees):
+def cross_validation(y, x, fun, k_indices, k, max_iters, gamma, degrees, batch_size):
     """
     Completes k-fold cross-validation using the least squares method
     solved by Gradient Descent.

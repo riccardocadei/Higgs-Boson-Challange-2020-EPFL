@@ -122,7 +122,7 @@ def learning_by_gradient_descent(y, tx, w, gamma):
     w = w-gamma*grad
     return loss, w
 
-def logistic_regression(y, tx, initial_w=None, batch_size=1, max_iters=100, gamma=0.009):
+def logistic_regression(y, tx, initial_w=None, max_iters=100, gamma=0.009, batch_size=1):
     # init parameters
     if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])
     threshold = 1e-8
@@ -145,18 +145,6 @@ def logistic_regression(y, tx, initial_w=None, batch_size=1, max_iters=100, gamm
 
     return w,losses[-1]
     
-def learning_by_stochastic_gradient_descent(y, tx, w, gamma, minibatch_y, minibatch_tx):
-    """
-    Do one step of stochastic gradient descenr using logistic regression.
-    Return the loss and the updated w.
-    """
-    loss = compute_loss(y, tx, w)
-    grad = compute_stoch_gradient(minibatch_y, minibatch_tx, w)
-    w = w - gamma * grad
-    return loss, w
-
-
-
 
 
     
@@ -172,7 +160,7 @@ def learning_by_penalized_gradient_descent(y, tx, w, gamma, lambda_):
     w = w-gamma*grad
     return loss, w
 
-def reg_logistic_regression(y, tx, lambda_, initial_w=None, batch_size=1, max_iters=100, gamma=0.009):
+def reg_logistic_regression(y, tx, lambda_, initial_w=None, max_iters=100, gamma=0.009, batch_size=1):
     # init parameters
     if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])
     threshold = 1e-8
