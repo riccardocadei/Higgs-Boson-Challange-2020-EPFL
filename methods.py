@@ -11,7 +11,7 @@ def least_squares(y, tx):
     """calculate the least squares solution."""
     w = np.linalg.solve (tx.T.dot(tx),tx.T.dot(y))
     mse = compute_mse(y, tx, w)
-    return w,mse 
+    return w, mse 
 
 def least_squares_gradient(y, tx, w):
     """Compute the gradient."""  
@@ -38,7 +38,7 @@ def least_squares_GD(y, tx, initial_w=None, max_iters=200, gamma=0.005):
         #if (n_iter % 100) == 0:
             #print("Gradient Descent({bi}/{ti}): loss={l}".format(bi=n_iter, ti=max_iters,l=loss))
 
-    return w,loss
+    return w, loss
 
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     """
@@ -96,7 +96,7 @@ def ridge_regression(y, tx, lambda_):
     lambd = lambda_ * 2 * len(y)
     w = np.linalg.solve (np.dot(x_t, tx) + lambd * np.eye(tx.shape[1]), np.dot(x_t,y)) 
     loss = compute_mse(y, tx, w)
-    return w,loss
+    return w, loss
 
 
 #LOGISTIC REGRESSION
@@ -121,7 +121,7 @@ def learning_by_gradient_descent(y, tx, w, gamma):
     loss = calculate_loss(y,tx,w)
     grad = calculate_gradient(y,tx,w)
     w = w-gamma*grad
-    return loss, w
+    return w, loss
 
 def logistic_regression(y, tx, initial_w=None, max_iters=100, gamma=0.009, batch_size=1):
     # init parameters
@@ -136,7 +136,7 @@ def logistic_regression(y, tx, initial_w=None, max_iters=100, gamma=0.009, batch
     for i in range(max_iters):
         # get loss and update w.
         for y_batch, tx_batch in batch_iter(y, tx, batch_size=batch_size, num_batches=1):
-            _, w = learning_by_gradient_descent(y_batch, tx_batch, w, gamma)
+            w, _ = learning_by_gradient_descent(y_batch, tx_batch, w, gamma)
             # converge criterion
             losses.append(calculate_loss(y,tx,w))
             if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
@@ -144,7 +144,7 @@ def logistic_regression(y, tx, initial_w=None, max_iters=100, gamma=0.009, batch
             if i % int(max_iters/5) == 0:
                 print(losses[-1],i,'/{tot}'.format(tot=max_iters))
 
-    return w,losses[-1]
+    return w, losses[-1]
     
 
 
@@ -159,7 +159,7 @@ def learning_by_penalized_gradient_descent(y, tx, w, gamma, lambda_):
     loss = calculate_loss(y, tx, w) + lambda_ * np.squeeze(w.T.dot(w))
     grad = calculate_gradient(y, tx, w) + 2 * lambda_ * w
     w = w-gamma*grad
-    return loss, w
+    return w, loss
 
 def reg_logistic_regression(y, tx, lambda_, initial_w=None, max_iters=100, gamma=0.009, batch_size=1):
     # init parameters
@@ -174,7 +174,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w=None, max_iters=100, gamma
     for iter in range(max_iters):
         # get loss and update w.
         for y_batch, tx_batch in batch_iter(y, tx, batch_size=batch_size, num_batches=1):
-            _, w = learning_by_penalized_gradient_descent(y_batch, tx_batch, w, gamma, lambda_)
+            w, loss = learning_by_penalized_gradient_descent(y_batch, tx_batch, w, gamma, lambda_)
             # converge criterion
             loss = calculate_loss(y, tx, w) + lambda_ * np.squeeze(w.T.dot(w))
             losses.append(loss)
@@ -183,4 +183,4 @@ def reg_logistic_regression(y, tx, lambda_, initial_w=None, max_iters=100, gamma
             if iter % int(max_iters/100) == 0:
                 print(losses[-1],iter,'/{tot}'.format(tot=max_iters))
 
-    return w,losses[-1],
+    return w, losses[-1]

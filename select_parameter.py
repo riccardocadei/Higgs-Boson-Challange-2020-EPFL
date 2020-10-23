@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from methods import *
 from helpers import *
 from process_data import *
-from crossValidation import *
+from crossvalidation import *
 
 def best_degree_lamb_selection(degrees, lambdas, alphas, k_fold, y, tx, seed):
     # split data in k fold
@@ -16,7 +16,7 @@ def best_degree_lamb_selection(degrees, lambdas, alphas, k_fold, y, tx, seed):
                 accs_test = []
                 for k in range(k_fold):
                         print(degree,lamb,alpha)
-                        _, acc_test = cross_validation_ridge_regressiontest(y, tx, k_indices, k, lamb, degree, alpha)
+                        _, acc_test = cross_validation(y, tx, ridge_regression, k_indices, k, degree, alpha, lamb)
                         accs_test.append(acc_test)
                         comparison.append([degree,lamb,alpha,np.mean(accs_test)])
     

@@ -4,7 +4,7 @@ import numpy as np
 from helpers import *
 from methods import *
 from process_data import *
-from crossValidation import *
+from crossvalidation import *
 
 # %load_ext autoreload
 # %autoreload 2

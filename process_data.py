@@ -144,7 +144,6 @@ def add_constant_column(x):
     return np.hstack((np.ones((x.shape[0], 1)), x))
 
 
-    
 
 
 def build_poly3(x, degree):
