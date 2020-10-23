@@ -6,7 +6,7 @@ PROJECT TO DO:
 1. Check **twice** the file `run.py` that we will submit. We need to chceck that no external libraries is used, the names are correct, the output are correct (correct output: **DONE**).
 2. Remove the normalization term in the `compute_loss` for logistic. **DONE**
 3. Print graphs comparing all the methods for the final report.
-4. Correct file name! Its not clear if the file `implementations.py` should contains only the 6 methods, or the 6 methods + all their necessary methods (I would think the second one).
+4. Correct file name! Its not clear if the file `implementations.py` should contains only the 6 methods, or the 6 methods + all their necessary methods (I would think the second one). (**DONE** it should contains all the required methods)
 
 
 TO DO:
