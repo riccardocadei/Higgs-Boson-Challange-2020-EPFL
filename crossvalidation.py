@@ -70,11 +70,11 @@ def cross_validation(y, x, fun, k_indices, k, degree, alpha, lamb=None, **kwargs
             
     # predict
     if fun==logistic_regression or fun==reg_logistic_regression:
-        y_train_pred[msk_jets_train[idx]] = predict_labels_logistic(weights, x_train)
-        y_test_pred[msk_jets_test[idx]] = predict_labels_logistic(weights, x_test)
+        y_train_pred = predict_labels_logistic(weights, x_train)
+        y_test_pred = predict_labels_logistic(weights, x_test)
     else:
-        y_train_pred[msk_jets_train[idx]] = predict_labels(weights, x_train)
-        y_test_pred[msk_jets_test[idx]] = predict_labels(weights, x_test)
+        y_train_pred = predict_labels(weights, x_train)
+        y_test_pred = predict_labels(weights, x_test)
         
 
     # compute accuracy for train and test data
