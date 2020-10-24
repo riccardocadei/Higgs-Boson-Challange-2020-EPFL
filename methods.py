@@ -19,7 +19,7 @@ def least_squares_gradient(y, tx, w):
     grad = -tx.T.dot(e) / len(e)
     return grad, e
 
-def least_squares_GD(y, tx, initial_w=None, max_iters=200, gamma=0.005):
+def least_squares_GD(y, tx, initial_w=None, max_iters=200, gamma=0.005,plot=False):
     """Gradient descent algorithm."""
     # Define parameters to store w and loss
     if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])    
@@ -37,8 +37,10 @@ def least_squares_GD(y, tx, initial_w=None, max_iters=200, gamma=0.005):
         losses.append(loss)
         #if (n_iter % 100) == 0:
             #print("Gradient Descent({bi}/{ti}): loss={l}".format(bi=n_iter, ti=max_iters,l=loss))
-
-    return w, loss
+    if plot:
+        return w, losses
+    else:
+        return w,loss
 
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     """
