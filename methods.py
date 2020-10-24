@@ -19,7 +19,7 @@ def least_squares_gradient(y, tx, w):
     grad = -tx.T.dot(e) / len(e)
     return grad, e
 
-def least_squares_GD(y, tx, initial_w=None, max_iters=200, gamma=0.005,plot=False):
+def least_squares_GD(y, tx, initial_w=None, max_iters=50, gamma=0.005,plot=False):
     """Gradient descent algorithm."""
     # Define parameters to store w and loss
     if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])    
@@ -67,7 +67,7 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
         if start_index != end_index:
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
 
-def least_squares_SGD(y, tx, initial_w=None, batch_size=1, max_iters=1000, gamma=0.005):
+def least_squares_SGD(y, tx, initial_w=None, batch_size=1, max_iters=50, gamma=0.00005,plot=False):
     """Stochastic gradient descent."""
     # Define parameters to store w and loss
     if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])    
@@ -84,22 +84,26 @@ def least_squares_SGD(y, tx, initial_w=None, batch_size=1, max_iters=1000, gamma
             # store w and loss
             losses.append(loss)
 
-        if n_iter % 100 == 0:
+        if n_iter % 10 == 0:
             print("SGD({bi}/{ti}): loss={l}".format(
               bi=n_iter, ti=max_iters - 1, l=loss))
-    return w,loss
-
+    if plot:
+        return w, losses
+    else:
+        return w,loss
 # RIDGE REGRESSION
 
-def ridge_regression(y, tx, lambda_):
+def ridge_regression(y, tx, lambda_,plot=False):
     """ Ridge regression using normal equations
     """
     x_t = tx.T
     lambd = lambda_ * 2 * len(y)
     w = np.linalg.solve (np.dot(x_t, tx) + lambd * np.eye(tx.shape[1]), np.dot(x_t,y)) 
     loss = compute_mse(y, tx, w)
-    return w, loss
-
+    if plot:
+        return w, losses
+    else:
+        return w,loss
 
 #LOGISTIC REGRESSION
 
@@ -125,7 +129,7 @@ def learning_by_gradient_descent(y, tx, w, gamma):
     w = w-gamma*grad
     return w, loss
 
-def logistic_regression(y, tx, initial_w=None, max_iters=100, gamma=0.009, batch_size=1):
+def logistic_regression(y, tx, initial_w=None, max_iters=100, gamma=0.009, batch_size=1,plot=False):
     # init parameters
     if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])
     threshold = 1e-8
@@ -146,8 +150,10 @@ def logistic_regression(y, tx, initial_w=None, max_iters=100, gamma=0.009, batch
             if i % int(max_iters/5) == 0:
                 print(losses[-1],i,'/{tot}'.format(tot=max_iters))
 
-    return w, losses[-1]
-    
+    if plot:
+        return w, losses
+    else:
+        return w,losses[-1]
 
 
     
@@ -163,7 +169,7 @@ def learning_by_penalized_gradient_descent(y, tx, w, gamma, lambda_):
     w = w-gamma*grad
     return w, loss
 
-def reg_logistic_regression(y, tx, lambda_, initial_w=None, max_iters=100, gamma=0.009, batch_size=1):
+def reg_logistic_regression(y, tx, lambda_, initial_w=None, max_iters=100, gamma=0.009, batch_size=1,plot=False):
     # init parameters
     if np.all(initial_w == None): initial_w = np.random.random(tx.shape[1])
     threshold = 1e-8
@@ -185,4 +191,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w=None, max_iters=100, gamma
             if iter % int(max_iters/100) == 0:
                 print(losses[-1],iter,'/{tot}'.format(tot=max_iters))
 
-    return w, losses[-1]
+    if plot:
+        return w, losses
+    else:
+        return w,losses[-1]
