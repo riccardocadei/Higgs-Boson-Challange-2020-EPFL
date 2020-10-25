@@ -15,7 +15,6 @@ def process_data(x_train, x_test, alpha=0, add_constant_col=False):
     x_train[:,[14,17,24,27]]= abs(x_train[:,[14,17,24,27]])
     x_test[:,[14,17,24,27]]= abs(x_test[:,[14,17,24,27]])    
     
-    
     # outliers
     x_train = outliers(x_train, alpha)
     x_test = outliers(x_test, alpha)

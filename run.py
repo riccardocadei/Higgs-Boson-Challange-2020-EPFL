@@ -6,9 +6,6 @@ from methods import *
 from process_data import *
 from crossvalidation import *
 
-# %load_ext autoreload
-# %autoreload 2
-
 seed=20
 
 from zipfile import ZipFile 
