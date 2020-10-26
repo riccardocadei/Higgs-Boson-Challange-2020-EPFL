@@ -10,7 +10,7 @@ The project is accomplished by team `INteam` with members:
 - Raphael Attias: [@raphaelattias](https://github.com/raphaelattias)
 - Shasha Jiang: [@dust629](https://github.com/dust629)
 
-With a Test Accuracy of 0.841 we got the 7-th place among 277 teams: 
+With a Test Accuracy of 0.841 we got the 7-th place out of 277 teams.
 
 
 ### Data
