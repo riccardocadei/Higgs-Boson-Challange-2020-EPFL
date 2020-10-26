@@ -1,5 +1,5 @@
 import numpy as np
-from methods import *
+from implementations import *
 from helpers import *
 from process_data import *
 from crossvalidation import *

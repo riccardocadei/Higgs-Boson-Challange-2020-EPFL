@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from methods import *
+from implementations import *
 from helpers import *
 from process_data import *
 

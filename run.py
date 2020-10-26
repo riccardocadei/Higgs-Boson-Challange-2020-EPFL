@@ -1,6 +1,6 @@
 import numpy as np
 from helpers import *
-from methods import *
+from implementations import *
 from process_data import *
 from crossvalidation import *
 
@@ -33,11 +33,13 @@ msks_jet_test = get_jet_masks(tX_test)
 
 # 3. Set the parameters 
 # found using Grid Search to optimize the accuracy predicted through Cross Validation
+# Preprocessing parameters
+
 
 # Coefficients for outliers detection and cutting for each subset
-alphas = [5, 5, 5]
+alphas = [4, 4, 5]
 # Degree of polynomial expansion for each subset
-degrees = [4, 4, 5]
+degrees = [5, 5, 5]
 # Ridge regression lambda parameter for each subset
 lambdas = [1e-06, 1e-05, 1e-03]
 
@@ -61,5 +63,5 @@ for idx in range(len(msks_jet_train)):
 
     
 # 5. Submission
-OUTPUT_PATH = 'data/INteam_ridgeregression.csv' 
+OUTPUT_PATH = 'data/finalsubmission.csv' 
 create_csv_submission(ids_test, y_pred, OUTPUT_PATH)
