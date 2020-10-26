@@ -47,7 +47,7 @@ And the final results are saved in: `/data/finalsubmission.csv`.
 
 ### Notebook
 
-`main.ipynb`: predicting the accuracy of all the methods through cross validation and tuning the best parameters for ridge regression.
+`main.ipynb`: tuning the best parameters for ridge regression and predicting the accuracy of all the methods through cross validation.
  
 `plots.ipynb`: data analysis and visualizion of the accuracy and error with different choices of parameters.
 
