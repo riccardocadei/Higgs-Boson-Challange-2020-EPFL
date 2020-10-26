@@ -26,7 +26,7 @@ And the final results are saved in: `/Data/finalsubmission.csv`.
 ## Project structure
 
 ### Training data
-`method.py`: the implementation of 6 methods to train the model.
+`implementations.py`: the implementation of 6 methods to train the model.
 
 `run.py`: the results after using the selected model to predict test data.
 
