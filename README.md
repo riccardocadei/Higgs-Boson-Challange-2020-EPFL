@@ -47,9 +47,9 @@ And the final results are saved in: `/data/finalsubmission.csv`.
 
 ### Notebook
 
-`main.ipynb`: demonstrating the accuracy of different methods with data analysis.
+`main.ipynb`: demonstrating the accuracy of different methods.
  
-`plots.ipynb`: visualizing the accuracy and error with different parameters.
+`plots.ipynb`: data analysis and visualizion of the accuracy and error with different choices ofparameters.
 
 ### Report
 
