@@ -2,13 +2,17 @@
 
 ## General Information
 
-The repository contains the code for Machine Learning course 2020 (CS-433) project 1 (higgs boson challenge) at EPFL. More information about this challenge can be found in the folder `documents`.
+The repository contains the code for Machine Learning course 2020 (CS-433) project 1 (Higgs Boson challenge: https://www.aicrowd.com/challenges/epfl-machine-learning-higgs/leaderboards) at EPFL. More information about this challenge can be found in the folder `documents`.
 
 ### Team
 The project is accomplished by team `INteam` with members:
 - Riccardo Cadei: [@RiccardoCadei](https://github.com/RiccardoCadei)
 - Raphael Attias: [@raphaelattias](https://github.com/raphaelattias)
 - Shasha Jiang: [@dust629](https://github.com/dust629)
+
+With a Test Accuracy of 0.841 we got the 7-th place among 277 teams: 
+
+
 ### Data
 The data `train.csv` and `test.csv` should be found in https://github.com/epfml/ML_course/tree/master/projects/project1/data, to run the code please download and place them in the `data` folder
 
