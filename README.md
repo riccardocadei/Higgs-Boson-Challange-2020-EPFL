@@ -27,6 +27,7 @@ And the final results are saved in: `/Data/INteam_ridgeregression.csv`.
 
 ### Training data
 `method.py`: the implementation of 6 methods to train the model.
+
 `run.py`: the results after using the selected model to predict test data.
 
 ### Processing data 
