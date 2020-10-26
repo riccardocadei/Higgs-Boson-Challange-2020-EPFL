@@ -56,3 +56,30 @@ def select_parameters_ridge_regression(degrees, lambdas, alphas, k_fold, y, tx, 
     accu = comparison[ind_best,3]
    
     return best_degree, best_lamb, best_alpha, accu
+
+def accuracy_per_parameters(degrees, lambdas, alphas, k_fold, y, tX, jet):
+    
+    # condider a specific jet
+    msk_jets = get_jet_masks(tX)
+    tX = tX[msk_jets[jet]]
+    y = y[msk_jets[jet]]
+    
+
+    # split data in k fold
+    k_indices = build_k_indices(y, k_fold, 10)
+    accu_te = []
+    accu_tr = []
+
+    for degree in degrees:
+        for lamb in lambdas:
+            for alpha in alphas:
+                accs_test = []
+                accs_train = []
+                for k in range(k_fold):
+                        acc_train, acc_test = cross_validation(y, tX, ridge_regression, k_indices, k, degree, alpha, lamb)
+                        accs_test.append(acc_test)
+                        accs_train.append(acc_train)
+                accu_te.append(np.mean(accs_test))
+                accu_tr.append(np.mean(accs_train))
+   
+    return accu_tr, accu_te
