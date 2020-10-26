@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from methods import *
 from helpers import *
 from process_data import *
-#import pandas as pd
 
 
 # Cross Validation
@@ -38,7 +37,7 @@ def build_k_indices(y, k_fold, seed):
 
 ###########
 
-def cross_validation(y, x, fun, k_indices, k, degree, alpha, lamb=None, **kwargs):
+def cross_validation(y, x, fun, k_indices, k, degree, alpha, lamb=None, log=False, **kwargs):
     """
     Completes k-fold cross-validation for Least Squares with GD, SGD, Normal Equations, Logistic and Regularized Logistic 
     Regression with SGD
@@ -55,23 +54,24 @@ def cross_validation(y, x, fun, k_indices, k, degree, alpha, lamb=None, **kwargs
     # initialize output vectors
     y_train_pred = np.zeros(len(y_train))
     y_test_pred = np.zeros(len(y_test))
-
+ 
     # data pre-processing
     x_train, x_test = process_data(x_train, x_test, alpha)
-                
+            
     # transformation
     x_train, x_test = phi(x_train, x_test, degree)
-            
+        
     # compute weights using given method
     if lamb == None:
         weights, _ = fun(y_train, x_train, **kwargs)
     else:
         weights, _ = fun(y_train, x_train, lamb, **kwargs)
-            
+       
     # predict
-    if fun==logistic_regression or fun==reg_logistic_regression:
+    if log == True:
         y_train_pred = predict_labels_logistic(weights, x_train)
         y_test_pred = predict_labels_logistic(weights, x_test)
+        print(y_train_pred, y_train)
     else:
         y_train_pred = predict_labels(weights, x_train)
         y_test_pred = predict_labels(weights, x_test)
@@ -81,12 +81,10 @@ def cross_validation(y, x, fun, k_indices, k, degree, alpha, lamb=None, **kwargs
     acc_train = compute_accuracy(y_train_pred, y_train)
     acc_test = compute_accuracy(y_test_pred, y_test)
     
-    print(acc_train, acc_test)
-
     return acc_train, acc_test
 
 
-def cross_validation_jet(y, x, fun, k_indices, k, degrees, alphas, lambdas=None, **kwargs):
+def cross_validation_jet(y, x, fun, k_indices, k, degrees, alphas, lambdas=None, log=False, **kwargs):
     """
     Completes k-fold cross-validation for Least Squares with GD, SGD, Normal Equations, Logistic and Regularized Logistic 
     Regression with SGD
@@ -125,7 +123,7 @@ def cross_validation_jet(y, x, fun, k_indices, k, degrees, alphas, lambdas=None,
             weights, _ = fun(y_train, x_train, lambdas[idx], **kwargs)
         
         # predict
-        if fun==logistic_regression or fun==reg_logistic_regression:
+        if log == True:
             y_train_pred[msk_jets_train[idx]] = predict_labels_logistic(weights, x_train)
             y_test_pred[msk_jets_test[idx]] = predict_labels_logistic(weights, x_test)
         else:
@@ -136,62 +134,7 @@ def cross_validation_jet(y, x, fun, k_indices, k, degrees, alphas, lambdas=None,
     acc_train = compute_accuracy(y_train_pred, y_train_all_jets)
     acc_test = compute_accuracy(y_test_pred, y_test_all_jets)
     
-    print(acc_train, acc_test)
-
     return acc_train, acc_test
-
-
-
-
-
-
-
-
-
-##### MODEL 4
-
-
-
-
-def cross_validation_ridge_regressiontest(y, x, k_indices, k, lambda_, degree, alpha):
-    """
-    Completes k-fold cross-validation using the ridge regression method.
-    """
-    # get k'th subgroup in test, others in train
-    msk_test = k_indices[k]
-    msk_train = np.delete(k_indices, (k), axis=0).ravel()
-
-    x_train = x[msk_train, :]
-    x_test = x[msk_test, :]
-    y_train = y[msk_train]
-    y_test = y[msk_test]
-
-    # initialize output vectors
-    y_train_pred = np.zeros(len(y_train))
-    y_test_pred = np.zeros(len(y_test))
-
-    # data pre-processing
-    x_train, x_test = process_data(x_train, x_test, alpha)
-                
-    # transformation
-    x_train, x_test = phi(x_train, x_test, degree)
-            
-    # compute weights using given method
-    weights, _ = ridge_regression(y=y_train, tx=x_train, lambda_=lambda_)
-            
-    y_train_pred = predict_labels(weights, x_train)
-    y_test_pred = predict_labels(weights, x_test)
-
-    # compute accuracy for train and test data
-    acc_train = compute_accuracy(y_train_pred, y_train)
-    acc_test = compute_accuracy(y_test_pred, y_test)
-    
-    print(acc_train, acc_test)
-
-    return acc_train, acc_test
-
-
-
 
 
 
