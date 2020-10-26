@@ -53,5 +53,5 @@ And the final results are saved in: `/data/finalsubmission.csv`.
 
 ### Report
 
-`documents/report.pdf`: a 2-pages report about how we finished the project in detail.
+`documents/report.pdf`: a 2-pages report of the complete solution.
 
