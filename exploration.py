@@ -1,6 +1,6 @@
 import numpy as np
 from helpers import *
-from methods import *
+from implementations import *
 from process_data import *
 from crossvalidation import *
 import matplotlib.pyplot as plt    
