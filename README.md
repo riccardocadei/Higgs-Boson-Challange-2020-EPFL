@@ -9,6 +9,10 @@ The project is accomplished by team `INteam` with members:
 - Riccardo Cadei: [@RiccardoCadei](https://github.com/RiccardoCadei)
 - Raphael Attias: [@raphaelattias](https://github.com/raphaelattias)
 - Shasha Jiang: [@dust629](https://github.com/dust629)
+
+### Score
+With a Test Accuracy of 0.841 we got the 5-th place amonng 277 teams 
+
 ### Data
 The data `train.csv` and `test.csv` should be found in https://github.com/epfml/ML_course/tree/master/projects/project1/data, to run the code please download and place them in the `data` folder
 
