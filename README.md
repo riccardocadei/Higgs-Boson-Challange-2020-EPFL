@@ -1,4 +1,4 @@
-# ML2020 Project 1
+# Higgs Boson Challenge 2020 EPFL
 
 ## General Information
 
